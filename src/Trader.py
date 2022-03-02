@@ -5,7 +5,7 @@
     For: Crypto Bot
     Description: Will access the Market for buying and selling of crypto/paper trading
 '''
-from market.CoinApi import CoinApi
+from CoinApi import CoinApi
 
 class Trader:
     def __init__(self, accountConfig):

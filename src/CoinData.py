@@ -9,22 +9,21 @@
 '''
 import pandas as pd
 import pandas_ta as ta
-from market.CoinApi import CoinApi
+from CoinApi import CoinApi
 
 class CoinData:
-    async def __init__(self, coinTicker, timeFrame='1m'):
+    def __init__(self, coinTicker, timeFrame='1m'):
         self.coin = coinTicker
         self.timeFrame = timeFrame
+        self.candles = pd.DataFrame()
+        self.buildCoinData()
         self.indicators = pd.DataFrame()
-        await self.buildCoinData()
-
-    async def buildCoinData(self):
-        startingCandles = await CoinApi.getCandles(self.coin)
-        self.candles = pd.DataFrame(startingCandles[:-1], columns=CoinApi.candleTypes)
         self.updateIndicators()
+
+    def buildCoinData(self):
+        self.candles = CoinApi.getCandles(self.coin)
     
     def updateIndicators(self):
-        self.indicators = pd.DataFrame()
         self.indicators['rsi'] = ta.rsi(self.candles['close'])
         self.indicators['atr'] = ta.atr(self.candles['high'], self.candles['low'], self.candles['close'])
         self.addDataFrameToIndicators(ta.adx(self.candles['high'], self.candles['low'], self.candles['close']))
@@ -38,9 +37,9 @@ class CoinData:
         for symbol in dataFrame:
             self.indicators[symbol] = dataFrame[symbol]
 
-    async def isNewCandle(self):
+    def isNewCandle(self):
         #check if there is a new candle
         pass
 
-    async def getCurrentPrice(self):
+    def getCurrentPrice(self):
         return CoinApi.getCurrentCoinPrice(self.coin)
