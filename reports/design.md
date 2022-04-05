@@ -144,6 +144,7 @@
 - `Notifier` could be sending out multiple notifications to multiple different platforms if possible
 
 ### Libraries:
- - Pandas-TA (data frames)
- - CCXT (coin API)
- - Dearpy.gui (GUI)
+- Pandas (DataFrames)
+- Pandas-TA (technical analyisis)
+- CCXT (coin API)
+- Dearpy.gui (GUI)

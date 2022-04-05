@@ -16,14 +16,8 @@ class CoinsScanner:
             self.coins[coin] = CoinData(coin, timeFrame=timeFrame)
         self.currentTime = self.timeInMinutes()
 
-    def timeInMinutes(self):
-        secs = time.time()
-        mins = secs / 60
-        return int(mins)
-
     def scanForever(self):
         while True:
-            newTime = self.timeInMinutes()
             if self.isNewCoin():
                 self.fetchAllNewCandles()
             else:
@@ -32,12 +26,16 @@ class CoinsScanner:
     def isNewCoin(self):
         newTime = self.timeInMinutes()
         if self.currentTime != newTime:
-            time.sleep(2) #Allow where we are fetching to have a little bit of update time
             self.currentTime = newTime
             return True
         return False
 
     def fetchAllNewCandles(self):
         for coin in self.tickerList:
-            self.coins[coin].addNewCandle()
+            while not self.coins[coin].addNewCandle():
+                time.sleep(2) # Sleep for a little if we fetched last candle
 
+    def timeInMinutes(self):
+            secs = time.time()
+            mins = secs / 60
+            return int(mins)  

@@ -12,6 +12,15 @@ import pandas_ta as ta
 from CoinApi import CoinApi
 
 class CoinData:
+    candleTypes = [
+        'time',
+        'open',
+        'high',
+        'low',
+        'close',
+        'volume'
+    ]
+
     def __init__(self, coinTicker, timeFrame='1m'):
         self.coin = coinTicker
         self.timeFrame = timeFrame
@@ -24,6 +33,7 @@ class CoinData:
         self.candles = CoinApi.getCandles(self.coin)
     
     def updateIndicators(self):
+        self.indicators = pd.DataFrame()
         self.indicators['rsi'] = ta.rsi(self.candles['close'])
         self.indicators['atr'] = ta.atr(self.candles['high'], self.candles['low'], self.candles['close'])
         self.addDataFrameToIndicators(ta.adx(self.candles['high'], self.candles['low'], self.candles['close']))
@@ -43,20 +53,24 @@ class CoinData:
         newMin = int(newCandle["time"] / 60000)
         timeDif = newMin - self.getLastCandleTime()
         if timeDif > 1:
-            #Add list of candles of the differnce in time
-            pass
-        elif timeDif == 0:
-            #nothing to do already have coin
-            pass
-        else:
-            # add single candle
-            pass
-
-        print(self.getLastCandleTime())
-        print(newMin)
+            newCandles = CoinApi.getCandles(self.coin, timeDif)
+            self.addCandles(newCandles)
+        elif timeDif == 1:
+            self.addCandle(newCandle)
+        else: # timeDif == 0
+            return False
+        self.updateIndicators()
+        return True
 
     def getLastCandleTime(self):
         return int(self.candles["time"].iloc[-1] / 60000)
 
+    def addCandles(self, candles):
+        for candle in candles:
+            self.addCandle(candle)
+
+    def addCandle(self, candle):
+        self.candles = self.candles.append(candle, ignore_index=True)
+    
     def getCurrentPrice(self):
         return CoinApi.getCurrentCoinPrice(self.coin)

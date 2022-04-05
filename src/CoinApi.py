@@ -34,9 +34,10 @@ class CoinApi:
 
     @staticmethod
     def setTimeFrame(newTimeFrame):
-        #Check Time frames
-        #Assign if valid
-        pass
+        if not newTimeFrame in CoinApi.candleTimes:
+            return False
+        CoinApi.timeFrame = newTimeFrame
+        return True
 
     @staticmethod
     def getLatestClosedCandle(ticker):
