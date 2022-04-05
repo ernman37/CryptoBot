@@ -37,9 +37,26 @@ class CoinData:
         for symbol in dataFrame:
             self.indicators[symbol] = dataFrame[symbol]
 
-    def isNewCandle(self):
-        #check if there is a new candle
-        pass
+    def addNewCandle(self):
+        #Check to make sure data has the most recent candle
+        newCandle = CoinApi.getLatestClosedCandle(self.coin)
+        newMin = int(newCandle["time"] / 60000)
+        timeDif = newMin - self.getLastCandleTime()
+        if timeDif > 1:
+            #Add list of candles of the differnce in time
+            pass
+        elif timeDif == 0:
+            #nothing to do already have coin
+            pass
+        else:
+            # add single candle
+            pass
+
+        print(self.getLastCandleTime())
+        print(newMin)
+
+    def getLastCandleTime(self):
+        return int(self.candles["time"].iloc[-1] / 60000)
 
     def getCurrentPrice(self):
         return CoinApi.getCurrentCoinPrice(self.coin)
