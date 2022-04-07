@@ -6,9 +6,15 @@
     Description: Main driver for the bot
 '''
 import pandas as pd
+import time
+from CoinData import CoinData
+from CoinApi import CoinApi
+from CoinsScanner import CoinsScanner
 
 def main():
-    print("Hello World!")
+    testCoin = CoinData("BTCUSDT")
+    scanner = CoinsScanner(["BTCUSDT"])
+    scanner.scanForever()
 
 if __name__ == "__main__":
     main()

@@ -9,19 +9,28 @@
 '''
 import pandas as pd
 import pandas_ta as ta
-from market.CoinApi import CoinApi
+from CoinApi import CoinApi
 
 class CoinData:
-    async def __init__(self, coinTicker, timeFrame='1m'):
+    candleTypes = [
+        'time',
+        'open',
+        'high',
+        'low',
+        'close',
+        'volume'
+    ]
+
+    def __init__(self, coinTicker, timeFrame='1m'):
         self.coin = coinTicker
         self.timeFrame = timeFrame
+        self.candles = pd.DataFrame()
+        self.buildCoinData()
         self.indicators = pd.DataFrame()
-        await self.buildCoinData()
-
-    async def buildCoinData(self):
-        startingCandles = await CoinApi.getCandles(self.coin)
-        self.candles = pd.DataFrame(startingCandles[:-1], columns=CoinApi.candleTypes)
         self.updateIndicators()
+
+    def buildCoinData(self):
+        self.candles = CoinApi.getCandles(self.coin)
     
     def updateIndicators(self):
         self.indicators = pd.DataFrame()
@@ -38,9 +47,30 @@ class CoinData:
         for symbol in dataFrame:
             self.indicators[symbol] = dataFrame[symbol]
 
-    async def isNewCandle(self):
-        #check if there is a new candle
-        pass
+    def addNewCandle(self):
+        #Check to make sure data has the most recent candle
+        newCandle = CoinApi.getLatestClosedCandle(self.coin)
+        newMin = int(newCandle["time"] / 60000)
+        timeDif = newMin - self.getLastCandleTime()
+        if timeDif > 1:
+            newCandles = CoinApi.getCandles(self.coin, timeDif)
+            self.addCandles(newCandles)
+        elif timeDif == 1:
+            self.addCandle(newCandle)
+        else: # timeDif == 0
+            return False
+        self.updateIndicators()
+        return True
 
-    async def getCurrentPrice(self):
+    def getLastCandleTime(self):
+        return int(self.candles["time"].iloc[-1] / 60000)
+
+    def addCandles(self, candles):
+        for candle in candles:
+            self.addCandle(candle)
+
+    def addCandle(self, candle):
+        self.candles = self.candles.append(candle, ignore_index=True)
+    
+    def getCurrentPrice(self):
         return CoinApi.getCurrentCoinPrice(self.coin)

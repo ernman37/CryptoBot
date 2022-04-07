@@ -6,7 +6,7 @@
     Description: Will analyze all data of the coins 
 '''
 import pandas as pd
-from market.Trader import Trader
+from Trader import Trader
 
 class Analyzer:
     def __init__(self, coinData):

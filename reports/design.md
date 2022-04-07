@@ -94,7 +94,6 @@
    - Maintain the `dataFrame` size, don't allow any coin to have over x amount of candle info 
 
 #### Analyzer
-
 - Will be created by `Reader`
 - On entry, it will begin analyzing the data of all the coins in the data stream
 - Algorithm
@@ -144,3 +143,8 @@
 - `Main` will have to be able to access its own API to the market so data can be fetched for the user(does not come out of our backend unless the client wants the same candlesticks that are used in the backend **1m** by default)
 - `Notifier` could be sending out multiple notifications to multiple different platforms if possible
 
+### Libraries:
+- Pandas (DataFrames)
+- Pandas-TA (technical analyisis)
+- CCXT (coin API)
+- Dearpy.gui (GUI)
