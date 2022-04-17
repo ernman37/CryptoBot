@@ -10,9 +10,10 @@ R='\033[0;31m'
 G='\033[0;32m'
 O='\033[0;33m'
 
-PROGRAM="/Users/rionduckworth/codeProjects/school/cs370/src/main.py"
+PROGRAM='main.py'
 
 function main() {
+   cd ../src/
    echoColor $G "Starting Bot"
    python3 "$PROGRAM"
    if [[ $? -eq 0 ]]
