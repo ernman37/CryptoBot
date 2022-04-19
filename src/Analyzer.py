@@ -7,15 +7,28 @@
 '''
 import pandas as pd
 from Trader import Trader
+import queue, logging
+from CoinData import CoinData
 
 class Analyzer:
-    def __init__(self, coinData):
-        self.CoinData = coinData
+    def __init__(self, coinsData: list[CoinData], scanQueue: queue, tradeQueue: queue):
+        self.log = logging.getLogger()
+        self.log.error("Setting up Analyzer")
+        self.coinsData = coinsData
+        self.scanQueue = scanQueue
 
-    def analyzeCoin(self):
+    def analyzeForever(self):
+        while True:
+            if not self.scanQueue.empty():
+                coinTicker = self.scanQueue.get()
+                self.log.error("Got Coin: " + str(coinTicker) +  " from queue")
+                self.analyzeCoin(coinTicker)
+
+    def analyzeCoin(self, ticker):
+        self.analyzeIndicators(ticker)
         pass
 
-    def analyzeIndicators(self):
+    def analyzeIndicators(self, ticker):
         pass
 
     def createBuyorSell(self, weight):

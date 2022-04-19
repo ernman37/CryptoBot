@@ -40,9 +40,13 @@ class CoinApi:
         return True
 
     @staticmethod
-    def getLatestClosedCandle(ticker):
-        newData = CoinApi.fetchRawCandles(ticker, 1)[0]
-        return CoinApi.asCandleSeries(newData)
+    def getLatestClosedCandles(ticker, size=1):
+        candles = list()
+        for i in range(size):
+            newData = CoinApi.fetchRawCandles(ticker, size)[i]
+            newCandle = CoinApi.asCandleSeries(newData)
+            candles.append(newCandle)
+        return candles if size > 1 else candles[0]
 
     @staticmethod
     def getCandles(ticker, limit=100):

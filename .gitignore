@@ -1,2 +1,3 @@
 #Ignore following files from upload
 src/__pycache__
+src/logfile.log

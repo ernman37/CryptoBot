@@ -10,11 +10,16 @@ import time
 from CoinData import CoinData
 from CoinApi import CoinApi
 from CoinsScanner import CoinsScanner
+from Trader import Trader
+from CryptoBot import CryptoBot
+from log import *
 
 def main():
-    testCoin = CoinData("BTCUSDT")
-    scanner = CoinsScanner(["BTCUSDT"])
-    scanner.scanForever()
+    setLogger()
+    trader = Trader({})
+    coins = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'MATICUSDT', 'MANAUSDT']
+    cryptoBot = CryptoBot(coins, trader)
+    cryptoBot.start()
 
 if __name__ == "__main__":
     main()

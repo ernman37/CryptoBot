@@ -10,6 +10,8 @@
 import pandas as pd
 import pandas_ta as ta
 from CoinApi import CoinApi
+from threading import Lock
+import copy
 
 class CoinData:
     candleTypes = [
@@ -22,15 +24,20 @@ class CoinData:
     ]
 
     def __init__(self, coinTicker, timeFrame='1m'):
+        self.lock = Lock()
         self.coin = coinTicker
         self.timeFrame = timeFrame
         self.candles = pd.DataFrame()
         self.buildCoinData()
-        self.indicators = pd.DataFrame()
-        self.updateIndicators()
 
     def buildCoinData(self):
-        self.candles = CoinApi.getCandles(self.coin)
+        self.lock.acquire()
+        try:
+            self.candles = CoinApi.getCandles(self.coin)
+            self.updateIndicators()
+        finally:
+            self.lock.release()
+
     
     def updateIndicators(self):
         self.indicators = pd.DataFrame()
@@ -48,19 +55,23 @@ class CoinData:
             self.indicators[symbol] = dataFrame[symbol]
 
     def addNewCandle(self):
-        #Check to make sure data has the most recent candle
-        newCandle = CoinApi.getLatestClosedCandle(self.coin)
-        newMin = int(newCandle["time"] / 60000)
-        timeDif = newMin - self.getLastCandleTime()
-        if timeDif > 1:
-            newCandles = CoinApi.getCandles(self.coin, timeDif)
-            self.addCandles(newCandles)
-        elif timeDif == 1:
-            self.addCandle(newCandle)
-        else: # timeDif == 0
-            return False
-        self.updateIndicators()
-        return True
+        self.lock.acquire()
+        status = True
+        try:
+            #Check to make sure data has the most recent candle
+            newCandle = CoinApi.getLatestClosedCandles(self.coin)
+            newMin = int(newCandle["time"] / 60000)
+            timeDif = newMin - self.getLastCandleTime()
+            if timeDif > 1:
+                newCandles = CoinApi.getLatestClosedCandles(self.coin, timeDif)
+                self.addCandles(newCandles)
+            elif timeDif == 1:
+                self.addCandle(newCandle)
+            else: # timeDif == 0
+                status = False
+        finally:
+            self.lock.release()
+        return status
 
     def getLastCandleTime(self):
         return int(self.candles["time"].iloc[-1] / 60000)
@@ -71,6 +82,23 @@ class CoinData:
 
     def addCandle(self, candle):
         self.candles = self.candles.append(candle, ignore_index=True)
+        self.updateIndicators()
     
     def getCurrentPrice(self):
         return CoinApi.getCurrentCoinPrice(self.coin)
+
+    def getCandles(self):
+        self.lock.acquire()
+        try:
+            candles = copy.deepcopy(self.candles)
+        finally:
+            self.lock.release()
+        return candles
+    
+    def getIndicators(self):
+        self.lock.acquire()
+        try:
+            indicators = copy.deepcopy(self.indicators)
+        finally:
+            self.lock.release()
+        return indicators
