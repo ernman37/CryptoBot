@@ -18,8 +18,8 @@ class Queue:
     def moveFront(self, coin):
         for count, x in enumerate(self.appendQue):
             if x == coin:
-                self.appendQue.pop(count)
-        self.appendQue.insert(0, coin)
+                self.queueArr.pop(count)
+        self.queueArr.insert(0, coin)
 
 
     #append now item to que
@@ -39,7 +39,7 @@ class Queue:
     # Remove/consume element from queue
     def removeQueue(self):
         if not self.isEmpty:
-            return self.appendQue.pop(0) 
+            return self.queueArr.pop(0) 
         else:
             print("Queue is Empty! Cannot get next coin!", file = sys.stderr)
 
@@ -64,3 +64,12 @@ class Queue:
 
     def printCurrQueue(self):
         print(self.queueArr)
+
+def main():
+    obj = Queue()
+    obj.printCurrQueue()
+    print("Ree")
+
+if __name__ == "__main__":
+    main()
+
