@@ -12,13 +12,15 @@ from CoinApi import CoinApi
 from CoinsScanner import CoinsScanner
 from Trader import Trader
 from CryptoBot import CryptoBot
-from log import *
+from log import setLogger
+from config import account
+
 
 def main():
     setLogger()
     trader = Trader({})
-    coins = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'MATICUSDT', 'MANAUSDT']
-    cryptoBot = CryptoBot(coins, trader)
+    coins = ['BTCUSD', 'ETHUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD']
+    cryptoBot = CryptoBot(['MANAUSD'], trader)
     cryptoBot.start()
 
 if __name__ == "__main__":

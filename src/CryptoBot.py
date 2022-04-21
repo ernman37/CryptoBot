@@ -8,14 +8,9 @@
 from CoinsScanner import CoinsScanner
 from Analyzer import Analyzer
 from Trader import Trader
-import queue
-import threading
-import logging
-import sys
-from log import *
+import queue, threading, logging, sys
 
 class CryptoBot: 
-
     def __init__(self, coins, trader: Trader, timeFrame='1m'): 
         self.log = logging.getLogger()
         self.log.error("Setting up Crypto Bot")

@@ -16,22 +16,44 @@ class Analyzer:
         self.log.error("Setting up Analyzer")
         self.coinsData = coinsData
         self.scanQueue = scanQueue
+        self.tradeQueue = tradeQueue
 
     def analyzeForever(self):
         while True:
             if not self.scanQueue.empty():
                 coinTicker = self.scanQueue.get()
-                self.log.error("Got Coin: " + str(coinTicker) +  " from queue")
                 self.analyzeCoin(coinTicker)
 
-    def analyzeCoin(self, ticker):
-        self.analyzeIndicators(ticker)
+    def analyzeCoin(self, coin):
+        self.log.error("Analyzing Coin: " + str(coin))
+        self.analyzeIndicators(coin)
+        self.createBuyorSell(-1, coin)
+
+    def analyzeIndicators(self, coin):
         pass
 
-    def analyzeIndicators(self, ticker):
-        pass
+    def createBuyorSell(self, weight, coin):
+        order = Analyzer.createSell(weight, coin) if (weight < .75) else Analyzer.createBuy(weight, coin)
+        self.tradeQueue.put(order)
 
-    def createBuyorSell(self, weight):
-        pass
+    @staticmethod
+    def createSell(weight, coin):
+        order = Analyzer.createOrder(weight, coin, "sell")
+        return order
+
+    @staticmethod
+    def createBuy(weight, coin):
+        order = Analyzer.createOrder(weight, coin, "buy")
+        return order
+
+    @staticmethod
+    def createOrder(weight, coin, orderType):
+        order = {
+            "type": orderType,
+            "weight": abs(weight),
+            "coin": coin
+        }
+        return order
+
 
 
