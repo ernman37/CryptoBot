@@ -35,6 +35,13 @@ class Queue:
             return True
         #Unsuccessful append
         return False
+    
+    # another name to remove something from queue
+    def get(self):
+        self.removeQueue()
+
+    def put(self, coin):
+        self.appendQueue(coin)
 
     # Remove/consume element from queue
     def removeQueue(self):
@@ -64,6 +71,7 @@ class Queue:
     def printCurrQueue(self):
         print(self.queueArr)
 
+# TODO: Remove this main function later
 def main():
     obj = Queue()
     obj.appendQueue(5)
@@ -71,6 +79,12 @@ def main():
     obj.appendQueue(7)
     obj.printCurrQueue()
     obj.appendQueue(7)
+    obj.appendQueue(8)
+    obj.appendQueue(9)
+    obj.removeQueue()
+    obj.appendQueue(11)
+    obj.printCurrQueue()
+    obj.appendQueue(11)
     obj.printCurrQueue()
 
 if __name__ == "__main__":

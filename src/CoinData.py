@@ -43,9 +43,13 @@ class CoinData:
         self.indicators = pd.DataFrame()
         self.indicators['rsi'] = ta.rsi(self.candles['close'])
         self.indicators['atr'] = ta.atr(self.candles['high'], self.candles['low'], self.candles['close'])
+        # Average directional movement
         self.addDataFrameToIndicators(ta.adx(self.candles['high'], self.candles['low'], self.candles['close']))
+        # Fill in what this does
         self.addDataFrameToIndicators(ta.bbands(self.candles['close']))
+        # Moving average Convergence Divergence
         self.addDataFrameToIndicators(ta.macd(self.candles['close']))
+        # StochRSI: developed to take advantage of momentum indicators to create a more sensative indicator based on historical performace
         self.addDataFrameToIndicators(ta.stoch(self.candles['high'], self.candles['low'], self.candles['close']))
         for dataFrame in ta.ichimoku(self.candles['high'], self.candles['low'], self.candles['close']):
             self.addDataFrameToIndicators(dataFrame)
