@@ -7,15 +7,30 @@
 --->
 # CryptoBot
 
-### Outline
+### Members
 
-#### Members
+- Scanner: <Scanner>
+- Analyzer: <Analyzer> 
+- Trader: <Trader>
+- log: <logger>
+- coins: <list(coinTicker)>
+
+#### Libraries
+
+- ccxt
+- time
+- queue
+- logging
+
+#### Models
 
 - Scanner
 - Analyzer
 - Trader
 
 #### Methods
+
+##### Main Methods
 
 - Constructor(coins, accountKeys/Trader, timeFrame="1m")
    - coins: list of Crypto tickers
@@ -26,4 +41,3 @@
    - Starts `Scanner.scanForever()`
    - Starts `Analyzer.analyzeForever()`
    - Starts `Trader.tradeForever()`
-

@@ -145,6 +145,6 @@
 
 ### Libraries:
 - Pandas (DataFrames)
-- Pandas-TA (technical analyisis)
+- Pandas-TA (technical analysis)
 - CCXT (coin API)
 - Dearpy.gui (GUI)

@@ -9,7 +9,7 @@ import ccxt
 import pandas as pd
 
 class CoinApi:
-    market = ccxt.binance() 
+    market = ccxt.binanceus() 
     candleTypes = [
         'time',
         'open',
@@ -26,11 +26,6 @@ class CoinApi:
         '1h'
     ]
     timeFrame = '1m'
-
-    @staticmethod
-    def setMarket(newMarket):
-        #Possibly switch markets
-        pass
 
     @staticmethod
     def setTimeFrame(newTimeFrame):
