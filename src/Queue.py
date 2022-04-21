@@ -11,26 +11,26 @@ class Queue:
         for x in self.queueArr:
             if x == coin:
                 return True
-            else:
-                return False
+        return False
 
-    #check if current coin is already in queue, if so, move to front
+    #if coin is already in queue, move it to the front
     def moveFront(self, coin):
-        for count, x in enumerate(self.appendQue):
+        for count, x in enumerate(self.queueArr):
             if x == coin:
                 self.queueArr.pop(count)
-        self.queueArr.insert(0, coin)
-
+                self.queueArr.insert(0, coin)
 
     #append now item to que
     def appendQueue(self, coin):
         #check if it is already in queue, if so, move upfront
         if self.inQueue(coin):
             self.moveFront(coin)
+            print("Moving ", coin, " to Front of Queue!")
             return True
         #otherwise, append to queue if it is not full
-        elif self.isFull == False and self.checkValid(coin):
+        elif not self.isFull():
             self.queueArr.append(coin)
+            print("Moved ", coin, " to Back of Queue!")
             #Successfull operatin
             return True
         #Unsuccessful append
@@ -38,7 +38,7 @@ class Queue:
 
     # Remove/consume element from queue
     def removeQueue(self):
-        if not self.isEmpty:
+        if not self.isEmpty():
             return self.queueArr.pop(0) 
         else:
             print("Queue is Empty! Cannot get next coin!", file = sys.stderr)
@@ -52,8 +52,7 @@ class Queue:
         if len(self.queueArr) == self.MAX_SIZE:
             print("Que is full!")
             return True
-        else:
-            return False
+        return False
 
     #check if current coint passed is 
     def checkValid(self, currentCoin):
@@ -67,8 +66,12 @@ class Queue:
 
 def main():
     obj = Queue()
+    obj.appendQueue(5)
+    obj.appendQueue(10)
+    obj.appendQueue(7)
     obj.printCurrQueue()
-    print("Ree")
+    obj.appendQueue(7)
+    obj.printCurrQueue()
 
 if __name__ == "__main__":
     main()
