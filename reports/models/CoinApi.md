@@ -19,6 +19,9 @@
 
 ### Static Methods
 
+- getAllUSDTradables()
+  - returns a list of all USD tradable coins
+
 - setTimeFrame(newTimeFrame)
   - sets new timeFrame if its valid
 
