@@ -15,13 +15,13 @@ from CryptoBot import CryptoBot
 from log import setLogger
 from config import account
 
-
 def main():
     setLogger()
-    trader = Trader({})
-    coins = ['BTCUSD', 'ETHUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD']
-    cryptoBot = CryptoBot(['MANAUSD'], trader)
-    cryptoBot.start()
+    trader = Trader(account['apiKey'], account['secret'])
+    coins = ['SOLUSD', 'MATICUSD', 'MANAUSD', 'APEUSD', 'AMPUSD']
+    cryptoBot = CryptoBot(coins, trader)
+    #cryptoBot.start()
+    CoinApi.getAllUSDTradeables()
 
 if __name__ == "__main__":
     main()

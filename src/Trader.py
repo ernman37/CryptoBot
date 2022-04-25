@@ -37,6 +37,7 @@ class Trader:
             while not self.tradeQueue.empty():
                 newTrade = self.tradeQueue.get()
                 self.executeTrade(newTrade)
+            time.sleep(1)
 
     def executeTrade(self, newTrade):
         tradeType = newTrade['type']
