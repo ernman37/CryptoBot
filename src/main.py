@@ -20,8 +20,7 @@ def main():
     trader = Trader(account['apiKey'], account['secret'])
     coins = ['SOLUSD', 'MATICUSD', 'MANAUSD', 'APEUSD', 'AMPUSD']
     cryptoBot = CryptoBot(coins, trader)
-    #cryptoBot.start()
-    CoinApi.getAllUSDTradeables()
+    cryptoBot.start()
 
 if __name__ == "__main__":
     main()
