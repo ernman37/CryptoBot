@@ -18,7 +18,7 @@ from config import account
 def main():
     setLogger()
     trader = Trader(account['apiKey'], account['secret'])
-    coins = ['SOLUSD', 'MATICUSD', 'MANAUSD', 'APEUSD', 'AMPUSD', 'OGNUSD', 'OXTUSD']
+    coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
     cryptoBot = CryptoBot(coins, trader)
     cryptoBot.start()
 
