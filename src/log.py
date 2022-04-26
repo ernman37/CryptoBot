@@ -8,11 +8,11 @@
 import logging, sys
 
 def setLogger():
-    logFormat = "%(threadName)s - %(message)s"
+    logFormat = "%(threadName)s - %(asctime)s - %(message)s"
     logger = logging.getLogger()
     fileHandler = logging.FileHandler("logfile.log")
     streamHandler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter(logFormat)
+    formatter = logging.Formatter(logFormat, "%H:%M:%S")
     streamHandler.setFormatter(formatter)
     fileHandler.setFormatter(formatter)
     logger.addHandler(streamHandler)

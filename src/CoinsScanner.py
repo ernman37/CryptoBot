@@ -9,7 +9,7 @@ from CoinData import CoinData
 import time, logging, queue, sys
 
 class CoinsScanner:
-    def __init__(self, coins, queue: queue.Queue, timeFrame='1m'):
+    def __init__(self, coins, queue, timeFrame='1m'):
         self.log = logging.getLogger()
         self.log.error("Setting up Scanner")
         self.tickerList = list(coins)

@@ -12,7 +12,7 @@ from CoinData import CoinData
 from time import sleep
 
 class Analyzer:
-    def __init__(self, coinsData: list[CoinData], scanQueue: queue, tradeQueue: queue):
+    def __init__(self, coinsData, scanQueue, tradeQueue):
         self.log = logging.getLogger()
         self.log.error("Setting up Analyzer")
         self.coinsData = coinsData
