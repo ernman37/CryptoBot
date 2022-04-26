@@ -99,7 +99,7 @@ class Trader:
     def executeSell(self, weight, coin):
         amountToSell = self.determineSellAmount(weight, coin)
         currentPrice = self.getPriceOfCoin(coin)
-        if currentPrice * amountToSell < 10.50:
+        if currentPrice * amountToSell < 10.00:
             self.log.error("Cant make \'sell\' order for \'" + coin + "\' balance is: " + str(self.getFreeCoinBalance(coin)))
             return False
         symbol = self.getCoinSymbol(coin)
