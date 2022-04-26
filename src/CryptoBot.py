@@ -11,7 +11,7 @@ from Trader import Trader
 import queue, threading, logging, sys
 
 class CryptoBot: 
-    def __init__(self, coins, trader: Trader, timeFrame='1m'): 
+    def __init__(self, coins, trader, timeFrame='1m'): 
         self.log = logging.getLogger()
         self.log.error("Setting up Crypto Bot")
         self.coins = coins
