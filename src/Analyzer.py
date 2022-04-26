@@ -10,10 +10,10 @@ from Trader import Trader
 import queue, logging
 from CoinData import CoinData
 
-from Queue import Queue
+from CoinQueue import Queue
 
 class Analyzer:
-    def __init__(self, coinsData: list[CoinData], scanQueue: Queue, tradeQueue: queue):
+    def __init__(self, coinsData: list[CoinData], scanQueue: Queue, tradeQueue: Queue):
         self.log = logging.getLogger()
         self.log.error("Setting up Analyzer")
         self.coinsData = coinsData

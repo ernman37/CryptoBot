@@ -40,6 +40,7 @@ class Queue:
     def get(self):
         self.removeQueue()
 
+    # another name for append Queue
     def put(self, coin):
         self.appendQueue(coin)
 
