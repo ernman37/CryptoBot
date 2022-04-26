@@ -11,9 +11,11 @@ import pandas as pd
 import pandas_ta as ta
 from CoinApi import CoinApi
 from threading import Lock
+import logging
 import copy
 
 class CoinData:
+    log = logging.getLogger
     candleTypes = [
         'time',
         'open',
@@ -43,16 +45,15 @@ class CoinData:
         self.indicators = pd.DataFrame()
         self.indicators['rsi'] = ta.rsi(self.candles['close'])
         self.indicators['atr'] = ta.atr(self.candles['high'], self.candles['low'], self.candles['close'])
-        # Average directional movement
-        self.addDataFrameToIndicators(ta.adx(self.candles['high'], self.candles['low'], self.candles['close']))
-        # Fill in what this does
-        self.addDataFrameToIndicators(ta.bbands(self.candles['close']))
-        # Moving average Convergence Divergence
-        self.addDataFrameToIndicators(ta.macd(self.candles['close']))
-        # StochRSI: developed to take advantage of momentum indicators to create a more sensative indicator based on historical performace
-        self.addDataFrameToIndicators(ta.stoch(self.candles['high'], self.candles['low'], self.candles['close']))
-        for dataFrame in ta.ichimoku(self.candles['high'], self.candles['low'], self.candles['close']):
-            self.addDataFrameToIndicators(dataFrame)
+        self.indicators['obv'] = ta.obv(self.candles['close'], self.candles['volume'])
+        
+        # Indicators to possibly be used in the near future with a more sophisticated trading strategy
+        #self.addDataFrameToIndicators(ta.adx(self.candles['high'], self.candles['low'], self.candles['close']))
+        #self.addDataFrameToIndicators(ta.bbands(self.candles['close']))
+        #self.addDataFrameToIndicators(ta.macd(self.candles['close']))
+        #self.addDataFrameToIndicators(ta.stoch(self.candles['high'], self.candles['low'], self.candles['close']))
+        #for dataFrame in ta.ichimoku(self.candles['high'], self.candles['low'], self.candles['close']):
+        #    self.addDataFrameToIndicators(dataFrame)
 
     def addDataFrameToIndicators(self, dataFrame):
         for symbol in dataFrame:
