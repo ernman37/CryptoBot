@@ -7,8 +7,10 @@
 '''
 import ccxt
 import pandas as pd
+import logging
 
 class CoinApi:
+    log = logging.getLogger()
     market = ccxt.binanceus() 
     candleTypes = [
         'time',
@@ -29,7 +31,16 @@ class CoinApi:
 
     @staticmethod
     def getAllUSDTradeables():
-        allTickers = CoinApi.market.fetch_markets()
+        fetched = False
+        failCount = 0
+        allTickers = None
+        while not fetched:
+            try:
+                allTickers = CoinApi.market.fetch_markets()
+                fetched = True
+            except Exception as E:
+                failCount = failCount + 1
+                CoinApi.log.error("Could not Fetch all USD coins fail #" + str(failCount))
         usdTickers = list()
         for ticker in allTickers:
             if "/USD" in ticker['symbol'] and not "/USDT" in ticker['symbol'] and not '/USDC' in ticker['symbol'] and not '/BUSD' in ticker['symbol']:
@@ -60,7 +71,17 @@ class CoinApi:
 
     @staticmethod
     def fetchRawCandles(ticker, limit):
-        return CoinApi.market.fetch_ohlcv(ticker, timeframe=CoinApi.timeFrame, limit=limit)
+        fetched = False
+        failCount = 0
+        candles = None
+        while not fetched:
+            try:
+                candles = CoinApi.market.fetch_ohlcv(ticker, timeframe=CoinApi.timeFrame, limit=limit)
+                fetched = True
+            except Exception as E:
+                failCount = failCount + 1
+                CoinApi.log.error("Failed To fetch candles for coin " + ticker + " fail #" + str(failCount))
+        return candles
 
     @staticmethod
     def asDataFrame(candles):
@@ -73,7 +94,16 @@ class CoinApi:
 
     @staticmethod
     def getCurrentCoinPrice(ticker):
-        orderbook = CoinApi.market.fetch_order_book(ticker)
+        fetched = False
+        failCount = 0
+        orderbook = None
+        while not fetched:
+            try:
+                orderbook = CoinApi.market.fetch_order_book(ticker)
+                fetched = True
+            except Exception as E:
+                failCount = failCount + 1
+                CoinApi.log.error("Failed to fetch current coin price, failure #" + str(failCount))
         bid = orderbook['bids'][0][0] if len(orderbook['bids']) > 0 else None
         ask = orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
         price = ((ask + bid) / 2) if (bid and ask) else None

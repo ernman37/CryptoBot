@@ -42,7 +42,7 @@ class Analyzer:
         recentRSI = rsi.iloc[-1]
         if recentRSI > 70:
             self.log.error("RSI is in an overbought zone: " + str(recentRSI))
-            return -(recentRSI / 90)
+            return -(recentRSI / 85)
         elif recentRSI < 25:
             self.log.error("RSI is in an oversold zone: " + str(recentRSI))
             return recentRSI / 20
@@ -60,8 +60,12 @@ class Analyzer:
         return 0
 
     def createBuyorSell(self, weight, coin):
+        self.log.error("Weight for Coin \'" + coin + "\' is: " + str(weight))
         order = Analyzer.createSell(weight, coin) if (weight < .75) else Analyzer.createBuy(weight, coin)
+        if weight < .7 and weight > -.7:
+            return False
         self.tradeQueue.put(order)
+        return True
 
     @staticmethod
     def createSell(weight, coin):
