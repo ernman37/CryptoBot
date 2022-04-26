@@ -7,7 +7,7 @@
 '''
 import pandas as pd
 from Trader import Trader
-import queue, logging
+import logging
 from CoinData import CoinData
 from time import sleep
 

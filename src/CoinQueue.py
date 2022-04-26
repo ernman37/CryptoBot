@@ -35,7 +35,8 @@ class Queue:
             return True
         #Unsuccessful append
         return False
-    
+
+    #Smaller names for functions for easier integration from other queue class 
     # another name to remove something from queue
     def get(self):
         self.removeQueue()
@@ -43,6 +44,12 @@ class Queue:
     # another name for append Queue
     def put(self, coin):
         self.appendQueue(coin)
+    
+    def empty(self):
+        self.isEmpty()
+    
+    def full(self):
+        self.isFull()
 
     # Remove/consume element from queue
     def removeQueue(self):

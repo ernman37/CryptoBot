@@ -6,9 +6,10 @@
     Description: Will access the Market for buying and selling of crypto/paper trading
 '''
 from CoinApi import CoinApi
-import queue, logging
+import logging
 import ccxt
 import time
+from CoinQueue import Queue
 
 class Trader:
     def __init__(self, apiKey, secretKey):
@@ -17,7 +18,7 @@ class Trader:
         try:
             account = Trader.buildAccountConfig(apiKey, secretKey)
             self.market = ccxt.binanceus(account)
-            self.tradeQueue = queue.Queue()
+            self.tradeQueue = Queue()
             self.lastUpdate = time.time()
             self.balances = self.updateBalances(True)
         except ccxt.AuthenticationError as e:
@@ -34,7 +35,7 @@ class Trader:
     def tradeForever(self):
         self.log.error("Trading Forever")
         while True:
-            while not self.tradeQueue.empty():
+            while not self.tradeQueue.isEmpty():
                 newTrade = self.tradeQueue.get()
                 self.executeTrade(newTrade)
             time.sleep(1)

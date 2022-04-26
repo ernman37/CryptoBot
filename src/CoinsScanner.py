@@ -6,10 +6,11 @@
     Description: Scans a list of coins data for analysis
 '''
 from CoinData import CoinData
-import time, logging, queue, sys
+import time, logging, sys
+from CoinQueue import Queue
 
 class CoinsScanner:
-    def __init__(self, coins, queue: queue.Queue, timeFrame='1m'):
+    def __init__(self, coins, queue: Queue, timeFrame='1m'):
         self.log = logging.getLogger()
         self.log.error("Setting up Scanner")
         self.tickerList = list(coins)
@@ -41,7 +42,7 @@ class CoinsScanner:
             while not self.coins[coin].addNewCandle():
                 time.sleep(2) # Sleep for a little if we fetched last candle
             self.log.error("Added new candle to " + coin)
-            while self.queue.full():
+            while self.queue.isFull():
                 time.sleep(1)
             self.queue.put(coin)
 
