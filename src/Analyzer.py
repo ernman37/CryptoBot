@@ -32,38 +32,43 @@ class Analyzer:
 
     def analyzeIndicators(self, coin):
         indicators = self.coinsData[coin].getIndicators()
+        numOfIndicators = 1
         weight = 0
         weight += self.analyzeRSI(indicators['rsi'])
-        #weight += self.analyzeATR(indicators['atr'])
-        #weight += self.analyzeOBV(indicators['obv'])
+        # Further analysis on several indicators here
+        weight = weight / numOfIndicators
         self.createBuyorSell(weight, coin)
 
+    # Basic RSI trading strategy
     def analyzeRSI(self, rsi):
         recentRSI = rsi.iloc[-1]
-        if recentRSI > 70:
+        lastRSI = rsi.iloc[-2]
+        #Overbought "sell"
+        if recentRSI > 50 or lastRSI > 50:
             self.log.error("RSI is in an overbought zone: " + str(recentRSI))
-            return -(recentRSI / 85)
-        elif recentRSI < 25:
+            if recentRSI > lastRSI:
+                self.log.error("RSI is greater than before waiting for optimal exit RSI")
+                return 0
+            return -(recentRSI / 50)
+        #Oversold "buy"
+        elif recentRSI < 40 or lastRSI < 40:
             self.log.error("RSI is in an oversold zone: " + str(recentRSI))
-            return recentRSI / 20
+            if recentRSI < lastRSI:
+                self.log.error("RSI is less than before waiting for optimal exit RSI")
+                return 0
+            return recentRSI / 40
+        #Neutral "wait"
         else:
             self.log.error("RSI is in a neutral zone: " + str(recentRSI))
             return 0
 
-    def analyzeATR(self, atr):
-        recentATR = atr.iloc[-1]
-        #print(atr)
-        return 0
-
-    def analyzeOBV(self, obv):
-        #print(obv)
-        return 0
-
     def createBuyorSell(self, weight, coin):
         self.log.error("Weight for Coin \'" + coin + "\' is: " + str(weight))
-        order = Analyzer.createSell(weight, coin) if (weight < .75) else Analyzer.createBuy(weight, coin)
-        if weight < .7 and weight > -.7:
-            return False
+        order = Analyzer.createWait(coin)
+        if (weight < -.75):
+            order = Analyzer.createSell(weight, coin) 
+        elif (weight > .75):
+            order = Analyzer.createBuy(weight, coin)
         self.tradeQueue.put(order)
         return True
 
@@ -75,6 +80,11 @@ class Analyzer:
     @staticmethod
     def createBuy(weight, coin):
         order = Analyzer.createOrder(weight, coin, "buy")
+        return order
+
+    @staticmethod
+    def createWait(coin):
+        order = Analyzer.createOrder(0, coin, "wait")
         return order
 
     @staticmethod
