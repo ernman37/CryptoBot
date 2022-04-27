@@ -50,16 +50,20 @@ class Trader:
 
     def executeTrade(self, newTrade):
         tradeType = newTrade['type']
-        if not tradeType in ['buy', 'sell']:
+        if not tradeType in ['buy', 'sell', 'wait']:
             self.log.error("Cannot create trade of type: " + str(tradeType) + " needs to be \'buy\' or \'sell\'")
             return False
         coin = newTrade['coin'].replace('USD', '')
         if not coin in self.balances:
             self.log.error("Cannot create trade for coin: " + str(coin) + " coin not in BinanceUs")
             return False
+        if not coin in self.coinBuys:
+            self.coinBuys[coin] = 0
         if self.hitStopLoss(coin):
             self.executeSell(1, coin)
             return True
+        if tradeType == 'wait':
+            return False
         weight = newTrade['weight']
         if weight < .75:
             self.log.error("Will not Create Trade for Weight under .75, weight: " + str(weight))
@@ -67,12 +71,31 @@ class Trader:
         self.log.error("Creating \'" + tradeType + "\' order for coin \'" + coin + "\' with weight: " + str(weight))
         if tradeType == 'buy':
             return self.executeBuy(weight, coin)
-        else:
+        elif tradeType == 'sell':
             return self.executeSell(weight, coin)
+            
+    def checkTrade(self, trade):
+        tradeType = trade['type']
+        if not tradeType in ['buy', 'sell']:
+            self.log.error("Cannot create trade of type: " + str(tradeType) + " needs to be \'buy\' or \'sell\'")
+            return False
+        coin = trade['coin'].replace('USD', '')
+        if not coin in self.balances:
+            self.log.error("Cannot create trade for coin: " + str(coin) + " coin not in BinanceUs")
+            return False
+        if not coin in self.coinBuys:
+            self.coinBuys[coin] = 0
+        if self.hitStopLoss(coin):
+            self.executeSell(1, coin)
+            return False
+        weight = trade['weight']
+        if weight < .75:
+            self.log.error("Will not Create Trade for Weight under .75, weight: " + str(weight))
+            return False
+        return True
+
 
     def hitStopLoss(self, coin):
-        if not coin in self.coinBuys:
-            return False
         coinPrice = self.getPriceOfCoin(coin)
         coinBalance = self.getFreeCoinBalance(coin)
         coinUSD = coinPrice * coinBalance
@@ -81,15 +104,12 @@ class Trader:
         lastBuy = self.coinBuys[coin]
         if lastBuy == 0:
             return False
-        if coinUSD / lastBuy > (1-self.stopLoss):
+        if coinUSD / lastBuy > (1 - self.stopLoss):
             return False
         self.log.error("Coin: " + coin + " has hit its stop loss exiting position")
         return True
-        
 
     def executeBuy(self, weight, coin):
-        if not coin in self.coinBuys:
-            self.coinBuys[coin] = 0
         if self.getFreeUSDBalance() < 10.00:
             self.log.error("Cannot Create Buy for \'" + coin + "\' there is no money available!")
             return False
@@ -107,7 +127,7 @@ class Trader:
             self.log.error(e)
             return False
         endUSD = self.getFreeUSDBalance()
-        self.coinBuys[coin] = self.buys[coin] + startUSD - endUSD
+        self.coinBuys[coin] = self.coinBuys[coin] + startUSD - endUSD
         self.log.error("Created \'buy\' order for coin \'" + coin + "\' for $" + str(cashAmount))
         return True
 
@@ -173,6 +193,9 @@ class Trader:
         return CoinApi.getCurrentCoinPrice(coin)
 
     def determineSuccess(self, coin, soldAmount):
+        if self.coinBuys[coin] == 0:
+            self.sells = self.sells - 1 
+            return False #Buy log was not recorded during this session therefore we cannot calculate success rate
         if self.coinBuys[coin] > soldAmount:
             self.log.error("Trade for " + coin + " was a negative return")
             self.failure = self.failure + 1
@@ -228,7 +251,15 @@ class Trader:
 
     def getTotalUSDBalance(self):
         return self.getAllCoinBalances('USD')['total']
-    
+
+    def getPortfolioUSDBalance(self):
+        totals = self.getTotalBalances()
+        totalUSD = totals["USD"]
+        for coin in totals:
+            if not totals[coin] == 0 and not coin == 'USD':
+                totalUSD = totalUSD + (self.getPriceOfCoin(coin) * totals[coin])
+        return totalUSD
+
     def updateBalances(self, forceUpdate = False):
         if time.time() - self.lastUpdate > 60 or forceUpdate:
             self.balances = self.market.fetch_balance()
