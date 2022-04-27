@@ -2,3 +2,4 @@ pandas
 pandas_ta
 ccxt
 dearpygui
+fingerprint
