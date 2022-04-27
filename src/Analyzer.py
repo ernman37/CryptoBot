@@ -44,19 +44,19 @@ class Analyzer:
         recentRSI = rsi.iloc[-1]
         lastRSI = rsi.iloc[-2]
         #Overbought "sell"
-        if recentRSI > 50 or lastRSI > 50:
+        if recentRSI > 70 or lastRSI > 70:
             self.log.error("RSI is in an overbought zone: " + str(recentRSI))
             if recentRSI > lastRSI:
                 self.log.error("RSI is greater than before waiting for optimal exit RSI")
                 return 0
-            return -(recentRSI / 50)
+            return -(recentRSI / 85)
         #Oversold "buy"
-        elif recentRSI < 40 or lastRSI < 40:
+        elif recentRSI < 20 or lastRSI < 20:
             self.log.error("RSI is in an oversold zone: " + str(recentRSI))
             if recentRSI < lastRSI:
                 self.log.error("RSI is less than before waiting for optimal exit RSI")
                 return 0
-            return recentRSI / 40
+            return recentRSI / 15
         #Neutral "wait"
         else:
             self.log.error("RSI is in a neutral zone: " + str(recentRSI))
