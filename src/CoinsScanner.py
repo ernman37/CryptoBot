@@ -15,6 +15,7 @@ class CoinsScanner:
         self.tickerList = list(coins)
         self.queue = queue
         self.coins = dict()
+        self.doneScanning = False
         for coin in coins:
             self.coins[coin] = CoinData(coin, timeFrame=timeFrame)
             self.queue.put(coin)
@@ -22,12 +23,13 @@ class CoinsScanner:
 
     def scanForever(self):
         self.log.error("Begginning To Scan Forever")
-        while True:
+        while not self.doneScanning:
             if self.isNewCoin():
                 self.log.error("Fetching new coins")
                 self.fetchAllNewCandles()
             else:
                 time.sleep(1)
+        sys.exit(0)
 
     def isNewCoin(self):
         newTime = self.timeInMinutes()
