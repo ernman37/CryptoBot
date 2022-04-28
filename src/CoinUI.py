@@ -8,6 +8,7 @@ from log import setLogger
 from Trader import Trader
 from CryptoBot import CryptoBot
 import os.path
+##Maybe import conf file into here
 
 Running = False
 
@@ -19,6 +20,8 @@ total = 0
 trader = -1
 t = [0]
 value = [0]
+wallet = 0
+
 timeSinceLast = 0
 
 def close():
@@ -29,40 +32,41 @@ def receiveInputButton(sender, data): ##handle input from buttons and checkboxes
     global selected
     global timeSinceLast
     global total
+    global value
+    global wallet
     pos = 0
     if sender == "Start":##Start
         timeSinceLast = time.time()
+        value.pop()
         total = dpg.get_value("total")
+        value.append(total)
         try: ##if there are no cryptos selected, do not run
             pos = selected.index(True)
         except:
             pos = -1
         if total >= 12.50 and pos != -1: ##at least one crypto and at least $12.50 has to be entered to run
-            if not os.path.exists("config.py"):
-                #missConf()
-                Running = True
-                while Running:
-                    renderGraph()
-                ##kill all threads, sell, etc
+            if not os.path.exists("config.py"): ##has to be configX.py because of file naming from fingerprint.py
+                missConf()
             else:
-                from config import account
+                from config import account ##configX?
                 setLogger()
                 trader = Trader(account['apikey'], account['secret'])
-                #bot = CryptoBot(ownedCryptos, trader)
-                ##bot.start()
-                Running = True
-                while Running:
-                    renderGraph()
+                if trader == 1 or trader == -1:
+                    missConf()
+                else:
+                    wallet = Trader.getPortfolioUSDBalance(getTrader())
+                    bot = CryptoBot(ownedCryptos, trader)
+                    bot.start()
+                    Running = True
+                    while dpg.is_dearpygui_running():
+                        renderGraph()
+                    print("jfkshfjd")
         else:
             popup()
     elif sender == "Stop": ##Stop
         Running = False
     elif sender == "pick": ##color picker
         dpg.configure_item("line", color = data)
-
-def setRunning(bool):
-    global Running
-    Running = bool
 
 def getTrader():
     return trader
@@ -84,9 +88,6 @@ def receiveInput(sender, data): ##handle input from checkboxes and total money
         else:
             runningPop()
 
-def getRunning():
-    global Running
-    return Running
 
 def renderGraph(): ##rerender the graph with new data every 30 seconds
     global timeSinceLast
@@ -94,6 +95,7 @@ def renderGraph(): ##rerender the graph with new data every 30 seconds
     resetGraph()
     resetOptions()
     resetCrypto()
+    t.append(t[len(t)-1]+30)
     while time.time() - timeSinceLast < 30:
         dpg.render_dearpygui_frame() ##The last thing to do is poll for stop press
     timeSinceLast = time.time()
@@ -114,7 +116,7 @@ def runningPop():
 
 def missConf():
     dpg.add_window(label="WARNING", tag="pop", modal=True, on_close=close)
-    dpg.add_text(parent="pop", default_value="Missing config file, required to start trading")
+    dpg.add_text(parent="pop", default_value="Missing or invalid config file, required to start trading")
 
 def selectedCryptos():
     with dpg.window(label="Selected Cryptos", height=1000, width = 220, pos=[600, 0], tag="Owned"): ##currently purchased cryptos
@@ -128,12 +130,10 @@ def tradableCryptos():
             dpg.add_checkbox(label=crypto[i], default_value=selected[i], tag=crypto[i], callback=receiveInput)
 
 def graph():
-    global t, value
-    t.append(t[len(t)-1]+30)
-    value.append(time.time())
+    global t, value, wallet
     if getTrader() != -1:
-        pass
-        #value.append(Trader.getPortfolioUSDBalance(getTrader()))
+        value.append((Trader.getPortfolioUSDBalance - wallet) + value[len(value) - 1])
+        wallet = Trader.getPortfolioUSDBalance()
     with dpg.window(label="Graph", width=600, height=400, tag="Plot"):
         with dpg.plot(label="Overall performance", width=600, height=400, tag="perf"):
             dpg.add_plot_axis(dpg.mvXAxis, label = "time (seconds)", tag="x_axis")
@@ -213,6 +213,16 @@ def menuBar():
     dpg.add_button(parent="window", label="Color Picker", callback=resetPicker)
     dpg.add_button(parent="window", label="Style Editor", callback=dpg.show_style_editor)
     
+def exportData():
+    plotFile = open("Graph.txt", "w")
+    plotFile.write("X data:\n")
+    for i in range(len(t)):
+        plotFile.write(str(t[i])+", ")
+    plotFile.write("\n")
+    plotFile.write("Y data:\n")
+    for i in range(len(value)):
+        plotFile.write(str(value[i])+", ")
+    plotFile.write("\n")
 
 if __name__ == "__main__":
     #create space and initialize dpg
@@ -220,6 +230,7 @@ if __name__ == "__main__":
     dpg.create_viewport(title='CryptoBot', width=1940, height=1050) ##create outer window
     viewPos = [0, 0]
     dpg.set_viewport_pos(viewPos)
+
     #start creating windows and widgets
     selectedCryptos()
     graph()
@@ -234,5 +245,6 @@ if __name__ == "__main__":
     while dpg.is_dearpygui_running():
         dpg.render_dearpygui_frame()
     Running = False
+    exportData()
     dpg.destroy_context()
-    ##sell all crypto, kill all threads, maybe export the graph?
+    ##sell all crypto, kill all threads
