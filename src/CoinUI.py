@@ -27,6 +27,17 @@ timeSinceLast = 0
 def close():
     dpg.delete_item("pop")
 
+def exportData():
+    plotFile = open("Graph.txt", "w")
+    plotFile.write("X data:\n")
+    for i in range(len(t)):
+        plotFile.write(str(t[i])+", ")
+    plotFile.write("\n")
+    plotFile.write("Y data:\n")
+    for i in range(len(value)):
+        plotFile.write(str(value[i])+", ")
+    plotFile.write("\n")
+
 def receiveInputButton(sender, data): ##handle input from buttons and checkboxes
     global Running
     global selected
@@ -58,13 +69,13 @@ def receiveInputButton(sender, data): ##handle input from buttons and checkboxes
                     bot = CryptoBot(ownedCryptos, trader)
                     bot.start()
                     Running = True
-                    while dpg.is_dearpygui_running():
-                        renderGraph()
-                    print("jfkshfjd")
+                    renderGraph()
+                    exportData()
+                    dpg.destroy_context()
+                    #kill threads and sell
+                    
         else:
             popup()
-    elif sender == "Stop": ##Stop
-        Running = False
     elif sender == "pick": ##color picker
         dpg.configure_item("line", color = data)
 
@@ -90,15 +101,19 @@ def receiveInput(sender, data): ##handle input from checkboxes and total money
 
 
 def renderGraph(): ##rerender the graph with new data every 30 seconds
-    global timeSinceLast
-    global Running
-    resetGraph()
-    resetOptions()
-    resetCrypto()
-    t.append(t[len(t)-1]+30)
-    while time.time() - timeSinceLast < 30:
-        dpg.render_dearpygui_frame() ##The last thing to do is poll for stop press
-    timeSinceLast = time.time()
+    while dpg.is_dearpygui_running():
+        global timeSinceLast
+        global Running
+        resetGraph()
+        resetOptions()
+        resetCrypto()
+        t.append(t[len(t)-1]+30)
+        while time.time() - timeSinceLast < 30:
+            if dpg.is_dearpygui_running():
+                dpg.render_dearpygui_frame() ##The last thing to do is poll for stop press
+            else:
+                break
+        timeSinceLast = time.time()
     
 
 def popup():
@@ -147,11 +162,9 @@ def options():
         if Running == False:
             dpg.add_input_float(label="Total Money", tag="total", default_value = total, callback=receiveInput)
             dpg.add_button(label="Start", tag="Start", callback=receiveInputButton)
-            dpg.add_button(label="Stop", tag = "Stop", callback=receiveInputButton)
         else:
             dpg.add_input_float(label="Total Money", tag="total", default_value = total, callback=runningPop)
             dpg.add_button(label="Start", tag="Start", callback=runningPop)
-            dpg.add_button(label="Stop", tag = "Stop", callback=receiveInputButton)
 
 def colorPicker():
     global Running
@@ -213,16 +226,6 @@ def menuBar():
     dpg.add_button(parent="window", label="Color Picker", callback=resetPicker)
     dpg.add_button(parent="window", label="Style Editor", callback=dpg.show_style_editor)
     
-def exportData():
-    plotFile = open("Graph.txt", "w")
-    plotFile.write("X data:\n")
-    for i in range(len(t)):
-        plotFile.write(str(t[i])+", ")
-    plotFile.write("\n")
-    plotFile.write("Y data:\n")
-    for i in range(len(value)):
-        plotFile.write(str(value[i])+", ")
-    plotFile.write("\n")
 
 if __name__ == "__main__":
     #create space and initialize dpg
