@@ -1,13 +1,20 @@
+from turtle import color
 import dearpygui.dearpygui as dpg
 import time
 import numpy as np
 from CoinApi import CoinApi
+from log import setLogger
+from Trader import Trader
+from CryptoBot import CryptoBot
+import os.path
 
 Running = False
 crypto = CoinApi.getAllUSDTradeables()
 selected = [False]*len(crypto)
 ownedCryptos = []
-liquid = []
+trader = -1
+x = [0]
+y = [0]
 
 def close():
     dpg.delete_item("pop")
@@ -21,34 +28,49 @@ def receiveInputButton(sender, data): ##handle input from buttons and checkboxes
             pos = -1
         if float(dpg.get_value("total")) >= 12.50 and pos != -1: ##at least one crypto and at least $12.50 has to be entered to run
             if pos != -1:
-                Running = True
-                while True:
-                    renderGraph()
+                if not os.path.exists("config.py"):
+                    #missConf()
+                    Running = True
+                    while True:
+                        renderGraph()
+                else:
+                    from config import account
+                    setLogger()
+                    trader = Trader(account['apikey'], account['secret'])
+                    #bot = CryptoBot(ownedCryptos, trader)
+                    ##bot.start()
+                    Running = True
+                    while True:
+                        renderGraph()
         else:
             popup()
     elif sender == "Stop": ##Stop
         Running = False
     elif sender == "pick": ##color picker
-        with dpg.theme() as global_theme:
-            with dpg.theme_component(dpg.mvAll):
-                dpg.add_theme_color(dpg.mvThemeCol_PlotLines, data, category=dpg.mvThemeCat_Plots) ##The values I'm recieving for data aren't appropriate for themes
-                dpg.bind_theme(global_theme)
+        print(data)
+        dpg.configure_item("line", color = data)
+def getTrader():
+    return trader
 
-
-def receiveInput(sender, data): ##handle input from checkboxes
-    dpg.delete_item("Owned")
-    ownedCryptos.clear() ##we will be recreating this based on each selection, so deletion is enabled
-    selected[crypto.index(sender)] = data
-    for i in range(len(crypto)):
-        if selected[i] == True:
-            ownedCryptos.append(crypto[i])
-    selectedCryptos()
+def receiveInput(sender, data): ##handle input from checkboxes and total money
+    if sender == "total":
+        y.clear()
+        y.append(data)
+    else:
+        dpg.delete_item("Owned")
+        ownedCryptos.clear() ##we will be recreating this based on each selection, so deletion is enabled
+        selected[crypto.index(sender)] = data
+        for i in range(len(crypto)):
+            if selected[i] == True:
+                ownedCryptos.append(crypto[i])
+        selectedCryptos()
 
 
 def renderGraph(): ##rerender the graph with updated data every frame
     dpg.delete_item("Plot")
     graph()
     dpg.render_dearpygui_frame() ##at some point this will have to be checking if stop has been clicked
+    time.sleep(10)
 
 def renderFrame(): ##stable renderer before clicking run
     dpg.render_dearpygui_frame()
@@ -62,6 +84,10 @@ def popup():
     elif not ownedCryptos:
         dpg.add_text(parent="pop", default_value="You must select one or more cryptos")
 
+def missConf():
+    dpg.add_window(label="WARNING", tag="pop", modal=True, on_close=close)
+    dpg.add_text(parent="pop", default_value="Missing config file, required to start trading")
+
 def selectedCryptos():
     with dpg.window(label="Selected Cryptos", height=1000, width = 220, pos=[600, 0], tag="Owned"): ##currently purchased cryptos
         dpg.add_listbox(items=ownedCryptos, num_items=55, width=200)
@@ -72,19 +98,25 @@ def tradableCryptos():
             dpg.add_checkbox(label=crypto[i], tag=crypto[i], callback=receiveInput)
 
 def graph():
-    liquid.append(time.time()) 
+    x.append(x[len(x)-1]+10)
+    if getTrader() != -1:
+        y.append(time.time())
+        #y.append(Trader.getPortfolioUSDBalance(getTrader()))
     with dpg.window(label="Graph", width=600, height=400, tag="Plot"):
-        dpg.add_simple_plot(default_value=liquid, height=350, width=600)
+        with dpg.plot(label="Overall performance", width=600, height=400):
+            dpg.add_plot_axis(dpg.mvXAxis, label = "time")
+            dpg.add_plot_axis(dpg.mvYAxis, label="Value (USD)", tag ="y_axis")
+            dpg.add_line_series(x, y, parent="y_axis", tag = "line")
 
 def options():
     with dpg.window(label="Options", width=600, height=200, pos=[0, 400], tag="Options"): ##input window
-        dpg.add_input_float(label="Total Money", tag="total")
+        dpg.add_input_float(label="Total Money", tag="total", default_value = 0, callback=receiveInput)
         dpg.add_button(label="Start", tag="Start", callback=receiveInputButton)
         dpg.add_button(label="Stop", tag = "Stop", callback=receiveInputButton)
 
 def colorPicker():
     with dpg.window(label="Graph Color", width=600, height=400, pos=[0, 600], tag="Picker"): ##color picker
-        dpg.add_color_picker(display_rgb=True, tag="pick", callback=receiveInputButton)
+        dpg.add_color_picker(display_hex=True, tag="pick", callback=receiveInputButton)
 
 
 def resetGraph():
@@ -121,6 +153,7 @@ def menuBar():
     dpg.add_button(parent="window", label="Selected Cryptos", callback=resetSelected)
     dpg.add_button(parent="window", label="All Cryptos", callback=resetCrypto)
     dpg.add_button(parent="window", label="Color Picker", callback=resetPicker)
+    dpg.add_button(parent="window", label="Style Editor", callback=dpg.show_style_editor)
     
 
 if __name__ == "__main__":
