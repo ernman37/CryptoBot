@@ -36,9 +36,10 @@ def receiveInputButton(sender, data): ##handle input from buttons and checkboxes
                 else:
                     from config import account
                     setLogger()
-                    trader = Trader(account['apikey'], account['secret'])
-                    #bot = CryptoBot(ownedCryptos, trader)
-                    ##bot.start()
+                    print(account)
+                    trader = Trader(account['apiKey'], account['secret'])
+                    bot = CryptoBot(ownedCryptos, trader)
+                    bot.start()
                     Running = True
                     while True:
                         renderGraph()
