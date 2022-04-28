@@ -6,10 +6,10 @@
     Description: Will analyze all data of the coins 
 '''
 import pandas as pd
-from Trader import Trader
-import queue, logging
-from CoinData import CoinData
+import queue, logging, sys
 from time import sleep
+from Trader import Trader
+from CoinData import CoinData
 
 class Analyzer:
     def __init__(self, coinsData, scanQueue, tradeQueue):
@@ -18,13 +18,15 @@ class Analyzer:
         self.coinsData = coinsData
         self.scanQueue = scanQueue
         self.tradeQueue = tradeQueue
+        self.doneAnalyzing = False 
 
     def analyzeForever(self):
-        while True:
+        while not self.doneAnalyzing:
             while not self.scanQueue.empty():
                 coinTicker = self.scanQueue.get()
                 self.analyzeCoin(coinTicker)
             sleep(1)
+        sys.exit(0)
 
     def analyzeCoin(self, coin):
         self.log.error("Analyzing Coin: " + str(coin))
@@ -49,14 +51,14 @@ class Analyzer:
             if recentRSI > lastRSI:
                 self.log.error("RSI is greater than before waiting for optimal exit RSI")
                 return 0
-            return -(recentRSI / 90)
+            return -(lastRSI / 90)
         #Oversold "buy"
         elif recentRSI < 25 or lastRSI < 25:
             self.log.error("RSI is in an oversold zone: " + str(recentRSI))
             if recentRSI < lastRSI:
-                self.log.error("RSI is less than before waiting for optimal exit RSI")
+                self.log.error("RSI is less than before waiting for optimal entry RSI")
                 return 0
-            return recentRSI / 30 if recentRSI > 22 else recentRSI / 20
+            return recentRSI / lastRSI
         #Neutral "wait"
         else:
             self.log.error("RSI is in a neutral zone: " + str(recentRSI))

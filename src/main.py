@@ -14,6 +14,7 @@ from Trader import Trader
 from CryptoBot import CryptoBot
 from log import setLogger
 import os.path
+import time
 
 log = setLogger()
 
@@ -28,6 +29,10 @@ def main():
     coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
     cryptoBot = CryptoBot(coins, trader)
     cryptoBot.start()
+    #time.sleep(3)
+    #cryptoBot.stop()
+    while True:
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()
