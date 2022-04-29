@@ -43,9 +43,12 @@ for k in range(len(selected)):
     i.append(IntVar())
 
 def closing():
-    exportData()
-    bot.stop()
-    window.destroy()
+    try: 
+        exportData()
+        bot.stop(True)
+        window.destroy()
+    except Exception as E:
+        pass
     exit(1)
     ##Kill threads and sell
 
@@ -87,12 +90,17 @@ def begin():
                     running = True
                     value.pop()
                     value.append(INPUT)
-                    while True:
+                    while running:
                         while time.time() - timeSinceLast < 30:
-                            window.mainloop()
+                            try:
+                                window.update()
+                            except Exception as E:
+                                closing()
                         timeSinceLast = time.time()
                         wallet = trader.getPortfolioUSDBalance()
-                        value.append((trader.getPortfolioUSDBalance() - wallet) + value[len(value)-1])
+                        newVal = (trader.getPortfolioUSDBalance() - wallet) + value[len(value)-1]
+                        print(newVal)
+                        value.append(newVal)
                         t.append(t[len(t)-1] + 30)
 
                         
