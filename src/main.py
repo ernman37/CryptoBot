@@ -13,14 +13,26 @@ from CoinsScanner import CoinsScanner
 from Trader import Trader
 from CryptoBot import CryptoBot
 from log import setLogger
-from config import account
+import os.path
+import time
+
+log = setLogger()
+
+if os.path.exists('config.py'):
+    from config import account
+else:
+    log.error("Cannot Find Config file cannot begin without it")
+    exit(1)
 
 def main():
-    setLogger()
     trader = Trader(account['apiKey'], account['secret'])
-    coins = ['SOLUSD', 'MATICUSD', 'MANAUSD', 'APEUSD', 'AMPUSD', 'OGNUSD', 'OXTUSD']
+    coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
     cryptoBot = CryptoBot(coins, trader)
     cryptoBot.start()
+    #time.sleep(3)
+    #cryptoBot.stop()
+    while True:
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()

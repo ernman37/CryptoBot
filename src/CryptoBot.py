@@ -8,10 +8,10 @@
 from CoinsScanner import CoinsScanner
 from Analyzer import Analyzer
 from Trader import Trader
-import queue, threading, logging, sys
+import queue, threading, logging, sys, time
 
 class CryptoBot: 
-    def __init__(self, coins, trader: Trader, timeFrame='1m'): 
+    def __init__(self, coins, trader, timeFrame='1m'): 
         self.log = logging.getLogger()
         self.log.error("Setting up Crypto Bot")
         self.coins = coins
@@ -28,3 +28,23 @@ class CryptoBot:
         self.scannerThread.start()
         self.analyzerThread.start()
         self.traderThread.start()
+        return True
+
+    def stop(self, forceStop=False):
+        self.log.error("Starting shutdown for CryptoBot")
+        if forceStop:
+            self.trader.hardExit()
+        else:
+            self.trader.setTrading(False)
+            while self.traderThread.is_alive():
+                time.sleep(1)
+        self.traderThread.join()
+        self.log.error("Shut Down Trader")
+        self.analyzer.doneAnalyzing = True
+        self.scanner.doneScanning = True
+        self.analyzerThread.join()
+        self.log.error("Shut Down Analyzer")
+        self.scannerThread.join()
+        self.log.error("Shut Down Scanner")
+        self.log.error("Successfully Shut Down Crypto Bot")
+        return True
