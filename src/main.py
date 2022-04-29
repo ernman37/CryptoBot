@@ -27,8 +27,6 @@ def main():
     #coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
     #cryptoBot = CryptoBot(coins, trader)
     #cryptoBot.start()
-    #time.sleep(3)
-    #cryptoBot.stop()
     while True:
         time.sleep(1)
 
