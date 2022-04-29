@@ -13,6 +13,7 @@ from CoinsScanner import CoinsScanner
 from Trader import Trader
 from CryptoBot import CryptoBot
 from log import setLogger
+from FingerPrint import FingerPrint
 import os.path
 import time
 
@@ -25,6 +26,8 @@ else:
     exit(1)
 
 def main():
+    fingerScanner = FingerPrint()
+    fingerScanner.run()
     trader = Trader(account['apiKey'], account['secret'])
     coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
     cryptoBot = CryptoBot(coins, trader)
