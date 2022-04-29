@@ -20,22 +20,22 @@ class Trader:
         try:
             account = Trader.buildAccountConfig(apiKey, secretKey)
             self.market = ccxt.binanceus(account)
-            self.tradeQueue = queue.Queue()
-            self.lastUpdate = time.time()
-            self.balances = self.updateBalances(True)
-            self.coinBuys = dict()
-            self.buys = 0
-            self.sells = 0
-            self.successful = 0
-            self.failure = 0
-            self.successRate = 0
-            self.averageReturn = 0
             self.sumOfReturns = 0 
         except ccxt.AuthenticationError as e:
             self.log.error(e)
             self.trading = False
             self.doneTrading = True
             exit(1)
+        self.tradeQueue = queue.Queue()
+        self.lastUpdate = time.time()
+        self.balances = self.updateBalances(True)
+        self.coinBuys = dict()
+        self.buys = 0
+        self.sells = 0
+        self.successful = 0
+        self.failure = 0
+        self.successRate = 0
+        self.averageReturn = 0
 
     @staticmethod
     def buildAccountConfig(apiKey, secretKey):
@@ -245,15 +245,9 @@ class Trader:
         return CoinApi.getCurrentCoinPrice(coin)
 
     def determineSuccess(self, coin, soldAmount):
-        if self.coinBuys[coin] == 0:
-            self.sells = self.sells - 1 
+        if not self.boughtDuringSession(coin):
             return False #Buy log was not recorded during this session therefore we cannot calculate success rate
-        if self.coinBuys[coin] > soldAmount:
-            self.log.error("Trade for " + coin + " was a negative return")
-            self.failure = self.failure + 1
-        else:
-            self.log.error("Trade for " + coin + " was a positive return")
-            self.successful = self.successful + 1
+        self.checkForPosOrNegReturn(coin, soldAmount)
         self.successRate = (self.successful / self.sells) * 100
         returnPercentage = soldAmount / self.coinBuys[coin]
         if returnPercentage < 1:
@@ -263,6 +257,21 @@ class Trader:
         self.sumOfReturns = self.sumOfReturns + returnPercentage
         self.averageReturn = (self.sumOfReturns / self.sells) * 100
         self.log.error("New SuccessRate: " + str(self.successRate) + ", Average Return: " + str(self.averageReturn) + "%")
+    
+    def boughtDuringSession(self, coin):
+        if self.coinBuys[coin] == 0:
+            self.sells = self.sells - 1
+            return False
+        return True
+
+    def checkForPosOrNegReturn(self, coin, soldAmount):
+        if self.coinBuys[coin] > soldAmount:
+            self.log.error("Trade for " + coin + " was a negative return")
+            self.failure = self.failure + 1
+        else:
+            self.log.error("Trade for " + coin + " was a positive return")
+            self.successful = self.successful + 1
+
 
     def getAllBalances(self):
         return self.updateBalances()
@@ -305,11 +314,16 @@ class Trader:
         return self.getAllCoinBalances('USD')['total']
 
     def getPortfolioUSDBalance(self):
-        totals = self.getTotalBalances()
-        totalUSD = totals["USD"]
-        for coin in totals:
-            if not totals[coin] == 0 and not coin == 'USD':
-                totalUSD = totalUSD + (self.getPriceOfCoin(coin) * totals[coin])
+        self.lock.acquire()
+        totalUSD = 0
+        try:
+            totals = self.getTotalBalances()
+            totalUSD = totals["USD"]
+            for coin in totals:
+                if not totals[coin] == 0 and not coin == 'USD':
+                    totalUSD = totalUSD + (self.getPriceOfCoin(coin) * totals[coin])
+        finally:
+            self.lock.release()
         return totalUSD
 
     def updateBalances(self, forceUpdate = False):
