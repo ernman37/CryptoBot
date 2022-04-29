@@ -6,6 +6,7 @@
     Description: Will access the Market for buying and selling of crypto/paper trading
 '''
 from CoinApi import CoinApi
+from CoinQueue import Queue
 import queue, logging, ccxt, time, sys
 from threading import Lock
 
@@ -20,7 +21,7 @@ class Trader:
         try:
             account = Trader.buildAccountConfig(apiKey, secretKey)
             self.market = ccxt.binanceus(account)
-            self.tradeQueue = queue.Queue()
+            self.tradeQueue = Queue()
             self.lastUpdate = time.time()
             self.balances = self.updateBalances(True)
             self.coinBuys = dict()
