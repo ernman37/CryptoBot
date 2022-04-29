@@ -70,7 +70,6 @@ def begin():
             pos = selected.index(True)
         except:
             pos = -1
-        print(type(INPUT))
         if INPUT >= 12.50 and pos != -1: ##at least one crypto and at least $12.50 has to be entered to run
             if not os.path.exists("config.py"):
                 exit(1)
@@ -80,7 +79,6 @@ def begin():
                 if trader == 1 or trader == -1:
                     exit(1)
                 else:
-                    print(selectedCryptos)
                     wallet = trader.getPortfolioUSDBalance()
                     bot = CryptoBot(selectedCryptos, trader)
                     bot.start()

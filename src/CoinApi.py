@@ -43,7 +43,7 @@ class CoinApi:
                 CoinApi.log.error("Could not Fetch all USD coins fail #" + str(failCount))
         usdTickers = list()
         for ticker in allTickers:
-            if "/USD" in ticker['symbol'] and not "/USDT" in ticker['symbol'] and not '/USDC' in ticker['symbol'] and not '/BUSD' in ticker['symbol']:
+            if "/USD" in ticker['symbol'] and not "/USDT" in ticker['symbol'] and not '/USDC' in ticker['symbol'] and not '/BUSD' in ticker['symbol'] and not 'XRP' in ticker['symbol']:
                 usdTickers.append(ticker['id'])
         return usdTickers
 
