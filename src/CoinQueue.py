@@ -67,6 +67,5 @@ class Queue:
     #check if Queue is full
     def full(self):
         if len(self.queueArr) == self.MAX_SIZE:
-            print("Que is full!")
             return True
         return False
