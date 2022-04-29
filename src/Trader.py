@@ -10,7 +10,7 @@ import queue, logging, ccxt, time, sys
 from threading import Lock
 
 class Trader:
-    def __init__(self, apiKey, secretKey, stopLoss=.015):
+    def __init__(self, apiKey, secretKey, stopLoss=0.01):
         self.log = logging.getLogger()
         self.log.error("Setting up Trader")
         self.stopLoss = stopLoss
@@ -127,7 +127,8 @@ class Trader:
         lastBuy = self.coinBuys[coin]
         if lastBuy == 0:
             return False
-        if coinUSD / lastBuy > (1 - self.stopLoss):
+        returnRate = coinUSD / lastBuy
+        if returnRate > (1 - self.stopLoss):
             return False
         return True
 
@@ -139,9 +140,9 @@ class Trader:
         coinAmount = self.determineCoinAmount(coin, cashAmount)
         if not coinAmount:
             return False
-        coinSymbol = self.getCoinSymbol(coin)
         startUSD = self.getFreeUSDBalance()
         try:
+            coinSymbol = self.getCoinSymbol(coin)
             self.market.create_market_buy_order(coinSymbol, coinAmount)
             self.buys = self.buys + 1
             self.updateBalances(True)
