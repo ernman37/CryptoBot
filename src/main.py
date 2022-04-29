@@ -26,6 +26,17 @@ else:
     exit(1)
 
 def main():
+    tryFingerScanner()
+    trader = Trader(account['apiKey'], account['secret'])
+    coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
+    cryptoBot = CryptoBot(coins, trader)
+    cryptoBot.start()
+    #time.sleep(3)
+    #cryptoBot.stop()
+    while True:
+        time.sleep(1)
+
+def tryFingerScanner():
     try:
         fingerScanner = FingerPrint()
         fingerScanner.run()
@@ -36,14 +47,6 @@ def main():
         if ans == '2':
             exit(1)
         log.error("Trying to Run without authorization")
-    trader = Trader(account['apiKey'], account['secret'])
-    coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
-    cryptoBot = CryptoBot(coins, trader)
-    cryptoBot.start()
-    #time.sleep(3)
-    #cryptoBot.stop()
-    while True:
-        time.sleep(1)
-
+ 
 if __name__ == "__main__":
     main()
