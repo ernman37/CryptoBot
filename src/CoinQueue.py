@@ -1,10 +1,15 @@
 import sys
+from threading import Lock
 
 class Queue:
     def __init__(self):
-        self.bitArray = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'MATICUSDT', 'MANAUSDT']
-        self.MAX_SIZE = 5
-        self.queueArr = []
+        try:
+            self.bitArray = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'MATICUSDT', 'MANAUSDT']
+            self.MAX_SIZE = 5
+            self.queueArr = []
+            self.lock = Lock()
+        except Exception as e:
+            self.log("Error setting up Queue")
 
     #check if current coin is in queue already
     def inQueue(self, coin):
@@ -20,60 +25,48 @@ class Queue:
                 self.queueArr.pop(count)
                 self.queueArr.insert(0, coin)
 
-    #append now item to que
-    def appendQueue(self, coin):
+    #append now item to cue; Lock function 
+    def put(self, coin):
+        self.lock.acquire()
         #check if it is already in queue, if so, move upfront
-        if self.inQueue(coin):
-            self.moveFront(coin)
-            print("Moving ", coin, " to Front of Queue!")
-            return True
-        #otherwise, append to queue if it is not full
-        elif not self.isFull():
-            self.queueArr.append(coin)
-            print("Moved ", coin, " to Back of Queue!")
-            #Successfull operatin
-            return True
+        returnValue = False
+        try:
+            if self.inQueue(coin):
+                self.moveFront(coin)
+                print("Moving ", coin, " to Front of Queue!")
+                returnValue = True
+            #otherwise, append to queue if it is not full
+            elif not self.full():
+                self.queueArr.append(coin)
+                print("Moved ", coin, " to Back of Queue!")
+                #Successfull operatin
+                returnValue = True
+        finally:
+            self.lock.release()
         #Unsuccessful append
-        return False
+        return returnValue
 
     #Smaller names for functions for easier integration from other queue class 
     # another name to remove something from queue
-    def get(self):
-        self.removeQueue()
-
-    # another name for append Queue
-    def put(self, coin):
-        self.appendQueue(coin)
-    
-    def empty(self):
-        self.isEmpty()
-    
-    def full(self):
-        self.isFull()
-
     # Remove/consume element from queue
-    def removeQueue(self):
-        if not self.isEmpty():
+    def get(self):
+        self.lock.acquire()
+        if not self.empty():
+            self.lock.release()
             return self.queueArr.pop(0) 
         else:
             print("Queue is Empty! Cannot get next coin!", file = sys.stderr)
-
+            self.lock.release()
+            
     # Check if queue is empty 
-    def isEmpty(self):
+    def empty(self):
         return len(self.queueArr)  == 0
 
     #check if Queue is full
-    def isFull(self):
+    def full(self):
         if len(self.queueArr) == self.MAX_SIZE:
             print("Que is full!")
             return True
-        return False
-
-    #check if current coint passed is 
-    def checkValid(self, currentCoin):
-        for x in self.bitArray:
-            if x == currentCoin:
-                return True
         return False
 
     def printCurrQueue(self):
@@ -82,17 +75,18 @@ class Queue:
 # TODO: Remove this main function later
 def main():
     obj = Queue()
-    obj.appendQueue(5)
-    obj.appendQueue(10)
-    obj.appendQueue(7)
+    obj.put(5)
+    obj.put(10)
+    obj.put(7)
     obj.printCurrQueue()
-    obj.appendQueue(7)
-    obj.appendQueue(8)
-    obj.appendQueue(9)
-    obj.removeQueue()
-    obj.appendQueue(11)
+    obj.put(7)
     obj.printCurrQueue()
-    obj.appendQueue(11)
+    obj.put(8)
+    obj.put(9)
+    obj.printCurrQueue()
+    obj.put(11)
+    obj.printCurrQueue()
+    obj.get()
     obj.printCurrQueue()
 
 if __name__ == "__main__":
