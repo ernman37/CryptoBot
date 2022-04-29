@@ -8,7 +8,8 @@
 from CoinsScanner import CoinsScanner
 from Analyzer import Analyzer
 from Trader import Trader
-import queue, threading, logging, sys, time
+from CoinQueue import Queue
+import threading, logging, sys, time
 
 class CryptoBot: 
     def __init__(self, coins, trader, timeFrame='1m'): 
@@ -16,7 +17,7 @@ class CryptoBot:
         self.log.error("Setting up Crypto Bot")
         self.coins = coins
         self.trader = trader
-        scannerAnalyzerQueue = queue.Queue(len(coins))
+        scannerAnalyzerQueue = Queue(len(coins))
         self.scanner = CoinsScanner(coins, scannerAnalyzerQueue, timeFrame)
         self.analyzer = Analyzer(self.scanner.coins, scannerAnalyzerQueue, self.trader.tradeQueue)
 

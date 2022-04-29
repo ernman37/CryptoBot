@@ -44,10 +44,10 @@ class CoinData:
     def updateIndicators(self):
         self.indicators = pd.DataFrame()
         self.indicators['rsi'] = ta.rsi(self.candles['close'])
-        self.indicators['atr'] = ta.atr(self.candles['high'], self.candles['low'], self.candles['close'])
-        self.indicators['obv'] = ta.obv(self.candles['close'], self.candles['volume'])
-        
+
         # Indicators to possibly be used in the near future with a more sophisticated trading strategy
+        #self.indicators['atr'] = ta.atr(self.candles['high'], self.candles['low'], self.candles['close'])
+        #self.indicators['obv'] = ta.obv(self.candles['close'], self.candles['volume'])
         #self.addDataFrameToIndicators(ta.adx(self.candles['high'], self.candles['low'], self.candles['close']))
         #self.addDataFrameToIndicators(ta.bbands(self.candles['close']))
         #self.addDataFrameToIndicators(ta.macd(self.candles['close']))
