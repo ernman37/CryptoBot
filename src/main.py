@@ -26,8 +26,16 @@ else:
     exit(1)
 
 def main():
-    fingerScanner = FingerPrint()
-    fingerScanner.run()
+    try:
+        fingerScanner = FingerPrint()
+        fingerScanner.run()
+    except Exception as E:
+        ans = ""
+        while ans not in ['1', '2']:
+            ans = input("1: Run without authorization\n2: exit\nEnter Option: ")
+        if ans == '2':
+            exit(1)
+    log.error("Trying to Run without authorization")
     trader = Trader(account['apiKey'], account['secret'])
     coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
     cryptoBot = CryptoBot(coins, trader)

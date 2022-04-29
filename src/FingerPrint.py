@@ -43,7 +43,7 @@ class FingerPrint:
         except Exception as e:
             print('The fingerprint sensor could not be initialized!')
             print('Exception message: ' + str(e))
-            exit(1)
+            return False
 
     def enrollNewFinger(self):
         try:
