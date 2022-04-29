@@ -37,13 +37,16 @@ wallet = 0
 moneyInput = 0
 INPUT = 0
 checkStop = IntVar()
+running = False
 
 for k in range(len(selected)):
     i.append(IntVar())
 
 def closing():
     exportData()
+    bot.stop()
     window.destroy()
+    exit(1)
     ##Kill threads and sell
 
 def exportData():
@@ -59,10 +62,10 @@ def exportData():
 
 
 def begin():
-    global selected, wallet, trader, moneyInput, INPUT, bot, stop
+    global selected, wallet, trader, moneyInput, INPUT, bot, stop, running
     timeSinceLast = time.time()
     selection()
-    if INPUT != '':
+    if INPUT != '' and not running:
         try: ##if there are no cryptos selected, do not run
             pos = selected.index(True)
         except:
@@ -81,6 +84,7 @@ def begin():
                     wallet = trader.getPortfolioUSDBalance()
                     bot = CryptoBot(selectedCryptos, trader)
                     bot.start()
+                    running = True
                     value.pop()
                     value.append(INPUT)
                     while True:
