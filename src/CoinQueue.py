@@ -1,15 +1,16 @@
 import sys
+import logging
 from threading import Lock
 
 class Queue:
-    def __init__(self):
+    def __init__(self, maxSize):
+        self.log = logging.getLogger()
         try:
-            self.bitArray = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'MATICUSDT', 'MANAUSDT']
-            self.MAX_SIZE = 5
+            self.MAX_SIZE = maxSize
             self.queueArr = []
             self.lock = Lock()
         except Exception as e:
-            self.log("Error setting up Queue")
+            self.log.error("Error setting up Queue")
 
     #check if current coin is in queue already
     def inQueue(self, coin):
@@ -33,13 +34,10 @@ class Queue:
         try:
             if self.inQueue(coin):
                 self.moveFront(coin)
-                print("Moving ", coin, " to Front of Queue!")
                 returnValue = True
             #otherwise, append to queue if it is not full
             elif not self.full():
                 self.queueArr.append(coin)
-                print("Moved ", coin, " to Back of Queue!")
-                #Successfull operatin
                 returnValue = True
         finally:
             self.lock.release()
@@ -51,16 +49,20 @@ class Queue:
     # Remove/consume element from queue
     def get(self):
         self.lock.acquire()
-        if not self.empty():
-            self.lock.release()
-            return self.queueArr.pop(0) 
-        else:
-            print("Queue is Empty! Cannot get next coin!", file = sys.stderr)
-            self.lock.release()
+        value = None
+        try:
+            if not self.empty():
+                value = self.queueArr.pop(0) 
+        finally:
+           self.lock.release()
+        return value
             
     # Check if queue is empty 
     def empty(self):
         return len(self.queueArr)  == 0
+
+    def isFull(self):
+        return self.full()
 
     #check if Queue is full
     def full(self):
@@ -68,27 +70,3 @@ class Queue:
             print("Que is full!")
             return True
         return False
-
-    def printCurrQueue(self):
-        print(self.queueArr)
-
-# TODO: Remove this main function later
-def main():
-    obj = Queue()
-    obj.put(5)
-    obj.put(10)
-    obj.put(7)
-    obj.printCurrQueue()
-    obj.put(7)
-    obj.printCurrQueue()
-    obj.put(8)
-    obj.put(9)
-    obj.printCurrQueue()
-    obj.put(11)
-    obj.printCurrQueue()
-    obj.get()
-    obj.printCurrQueue()
-
-if __name__ == "__main__":
-    main()
-
