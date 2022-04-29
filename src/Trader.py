@@ -44,35 +44,6 @@ class Trader:
             "secret": secretKey
         }
 
-    # Tells us if we can buy more
-    # Will always be able to sell the coins that it has to ensure profits/losses
-    def setTrading(self, canBuy=True):
-        self.lock.acquire()
-        try:
-            self.trading = canBuy
-            if self.trading:
-                self.log.error("Set to Buy and Sell")
-            else:
-                self.log.error("Set to Sell out of positions")
-        finally: 
-            self.lock.release()
-        return self.trading
-
-    def hardExit(self):
-        self.lock.acquire()
-        try:
-            self.doneTrading = True
-            self.trading = False
-            freeBalances = self.getFreeBalances()
-            for coin in freeBalances:
-                if coin != "USD" and freeBalances[coin] != 0 and freeBalances[coin] * self.getPriceOfCoin(coin) > 10.50:
-                    self.executeSell(1, coin)
-        except Exception as E:
-            self.log.error(E)
-        finally: 
-            self.lock.release()
-        return True
-
     def tradeForever(self):
         self.log.error("Trading Forever")
         while not self.doneTrading:
@@ -209,8 +180,8 @@ class Trader:
         if currentPrice * amountToSell < 10.00:
             self.log.error("Cant make \'sell\' order for \'" + coin + "\' balance is: " + str(self.getFreeCoinBalance(coin)))
             return False
-        symbol = self.getCoinSymbol(coin)
         try:
+            symbol = self.getCoinSymbol(coin)
             self.market.create_market_sell_order(symbol, amountToSell)
             self.sells = self.sells + 1
             self.updateBalances(True)
@@ -248,14 +219,8 @@ class Trader:
         if not self.boughtDuringSession(coin):
             return False #Buy log was not recorded during this session therefore we cannot calculate success rate
         self.checkForPosOrNegReturn(coin, soldAmount)
-        self.successRate = (self.successful / self.sells) * 100
-        returnPercentage = soldAmount / self.coinBuys[coin]
-        if returnPercentage < 1:
-            returnPercentage = -(1 - returnPercentage)
-        else:
-            returnPercentage = returnPercentage - 1
-        self.sumOfReturns = self.sumOfReturns + returnPercentage
-        self.averageReturn = (self.sumOfReturns / self.sells) * 100
+        returnPercentage = self.calculateSuccessAndReturnRate(coin, soldAmount)
+        self.calculateAverageReturn(returnPercentage)
         self.log.error("New SuccessRate: " + str(self.successRate) + ", Average Return: " + str(self.averageReturn) + "%")
     
     def boughtDuringSession(self, coin):
@@ -271,7 +236,19 @@ class Trader:
         else:
             self.log.error("Trade for " + coin + " was a positive return")
             self.successful = self.successful + 1
+        
+    def calculateSuccessAndReturnRate(self, coin, soldAmount):
+        self.successRate = (self.successful / self.sells) * 100
+        returnPercentage = soldAmount / self.coinBuys[coin]
+        if returnPercentage < 1:
+            returnPercentage = -(1 - returnPercentage)
+        else:
+            returnPercentage = returnPercentage - 1
+        return returnPercentage
 
+    def calculateAverageReturn(self, returnPercentage):
+        self.sumOfReturns = self.sumOfReturns + returnPercentage
+        self.averageReturn = (self.sumOfReturns / self.sells) * 100
 
     def getAllBalances(self):
         return self.updateBalances()
@@ -331,3 +308,30 @@ class Trader:
             self.balances = self.market.fetch_balance()
             self.lastUpdate = time.time()
         return self.balances
+
+    def setTrading(self, canBuy=True):
+        self.lock.acquire()
+        try:
+            self.trading = canBuy
+            if self.trading:
+                self.log.error("Set to Buy and Sell")
+            else:
+                self.log.error("Set to Sell out of positions")
+        finally: 
+            self.lock.release()
+        return self.trading
+
+    def hardExit(self):
+        self.lock.acquire()
+        try:
+            self.doneTrading = True
+            self.trading = False
+            freeBalances = self.getFreeBalances()
+            for coin in freeBalances:
+                if coin != "USD" and freeBalances[coin] != 0 and freeBalances[coin] * self.getPriceOfCoin(coin) > 10.50:
+                    self.executeSell(1, coin)
+        except Exception as E:
+            self.log.error(E)
+        finally: 
+            self.lock.release()
+        return True
