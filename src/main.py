@@ -19,13 +19,8 @@ import time
 
 log = setLogger()
 
-if os.path.exists('config.py'):
-    from config import account
-else:
-    log.error("Cannot Find Config file cannot begin without it")
-    exit(1)
-
 def main():
+    account = findConfig()
     tryFingerScanner()
     trader = Trader(account['apiKey'], account['secret'])
     coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
@@ -47,6 +42,16 @@ def tryFingerScanner():
         if ans == '2':
             exit(1)
         log.error("Trying to Run without authorization")
+
+def findConfig():
+    if os.path.exists('config.py'):
+        from config import account
+        log.error("Found config File")
+        return account
+    else:
+        log.error("Cannot Find Config file cannot begin without it")
+        exit(1)
+
  
 if __name__ == "__main__":
     main()
