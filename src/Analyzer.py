@@ -13,7 +13,6 @@ from CoinData import CoinData
 from CoinQueue import Queue
 
 class Analyzer:
-
     def __init__(self, coinsData, scanQueue, tradeQueue):
         self.log = logging.getLogger()
         self.log.error("Setting up Analyzer")

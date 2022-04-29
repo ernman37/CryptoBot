@@ -49,6 +49,6 @@ class CoinsScanner:
             self.queue.put(coin)
 
     def timeInMinutes(self):
-            secs = time.time()
-            mins = secs / 60
-            return int(mins)  
+        secs = time.time()
+        mins = secs / 60
+        return int(mins)  

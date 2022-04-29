@@ -45,7 +45,6 @@ class CoinApi:
         for ticker in allTickers:
             if "/USD" in ticker['symbol'] and not "/USDT" in ticker['symbol'] and not '/USDC' in ticker['symbol'] and not '/BUSD' in ticker['symbol']:
                 usdTickers.append(ticker['id'])
-        print(usdTickers)
         return usdTickers
 
     @staticmethod
