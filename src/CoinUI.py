@@ -4,7 +4,9 @@ from CoinApi import CoinApi
 from Trader import Trader
 from CryptoBot import CryptoBot
 import os.path
+from log import setLogger
 
+setLogger()
 window = Tk()
 window.geometry("700x400")
 vscrollbar = Scrollbar(window)
@@ -34,13 +36,13 @@ total = 0
 wallet = 0
 moneyInput = 0
 INPUT = 0
+checkStop = IntVar()
 
 for k in range(len(selected)):
     i.append(IntVar())
 
 def closing():
     exportData()
-    print("FDSHJ")
     window.destroy()
     ##Kill threads and sell
 
@@ -57,8 +59,9 @@ def exportData():
 
 
 def begin():
-    global selected, wallet, trader, moneyInput, INPUT
+    global selected, wallet, trader, moneyInput, INPUT, bot, stop
     timeSinceLast = time.time()
+    selection()
     if INPUT != '':
         try: ##if there are no cryptos selected, do not run
             pos = selected.index(True)
@@ -74,14 +77,16 @@ def begin():
                 if trader == 1 or trader == -1:
                     exit(1)
                 else:
+                    print(selectedCryptos)
                     wallet = trader.getPortfolioUSDBalance()
-                    bot = CryptoBot(ownedCryptos, trader)
+                    bot = CryptoBot(selectedCryptos, trader)
                     bot.start()
                     value.pop()
-                    value.append(moneyInput)
+                    value.append(INPUT)
                     while True:
                         while time.time() - timeSinceLast < 30:
-                            pass
+                            window.mainloop()
+                        timeSinceLast = time.time()
                         wallet = trader.getPortfolioUSDBalance()
                         value.append((trader.getPortfolioUSDBalance() - wallet) + value[len(value)-1])
                         t.append(t[len(t)-1] + 30)
@@ -93,22 +98,25 @@ def selection(): ##handle changes to money and checklist
     temp = 0
     for k in range(len(i)):
         if i[k].get() == 1:
+            if cryptos[k] in selectedCryptos:
+                continue
             selectedCryptos.append(cryptos[k])
             selected[k] = True
-            listbox.insert(END, selectedCryptos.pop())
+            listbox.insert(END, selectedCryptos[-1])
     if (money.get() != ''):
         temp = int(money.get())
         INPUT = temp
     
-
 def ownedCryptos():
-    global listbox, money
-    listbox = Listbox(window, width=20, height = 58)
+    global listbox, money, stop, checkStop
+    listbox = Listbox(window, width=20, height = 20)
     start = Button(window, text="Start", command=begin)
+    stop = Button(window, text="Stop", command=closing)
     money = Entry(window)
     listbox.pack()
     money.pack()
     start.pack()
+    stop.pack()
 
 def checkboxes(): ##makes checkboxes and save button
     global CryptoCopy, i
