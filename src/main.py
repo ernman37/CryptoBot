@@ -14,7 +14,7 @@ from Trader import Trader
 from CryptoBot import CryptoBot
 from log import setLogger
 from FingerPrint import FingerPrint
-import os.path
+import os.path, os, sys
 import time
 
 log = setLogger()
@@ -22,10 +22,11 @@ log = setLogger()
 def main():
     account = findConfig()
     tryFingerScanner()
-    trader = Trader(account['apiKey'], account['secret'])
-    coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
-    cryptoBot = CryptoBot(coins, trader)
-    cryptoBot.start()
+    os.system("python3 CoinUI.py")
+    #trader = Trader(account['apiKey'], account['secret'])
+    #coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
+    #cryptoBot = CryptoBot(coins, trader)
+    #cryptoBot.start()
     #time.sleep(3)
     #cryptoBot.stop()
     while True:
