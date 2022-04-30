@@ -36,7 +36,7 @@ money = 0
 total = 0
 wallet = 0
 moneyInput = 0
-INPUT = 0
+INPUT = 0.0
 checkStop = IntVar()
 running = False
 bot = 0
@@ -51,11 +51,11 @@ def closing():
         bot.stop(True)
         window.destroy()
     except Exception as E:
-        print(E)
+        pass
     os._exit(0)
 
 def exportData():
-    plotFile = open("Graph.txt", "w")
+    plotFile = open("src\Graph.txt", "w")
     plotFile.write("X data:\n")
     for i in range(len(t)):
         plotFile.write(str(t[i])+", ")
@@ -69,7 +69,6 @@ def exportData():
 def begin():
     global selected, wallet, trader, moneyInput, INPUT, bot, stop, running
     timeSinceLast = time.time()
-    selection()
     if INPUT != '' and not running:
         try: ##if there are no cryptos selected, do not run
             pos = selected.index(True)
@@ -84,7 +83,7 @@ def begin():
                 if trader == 1 or trader == -1:
                     exit(1)
                 else:
-                    print(selectedCryptos)
+                    selection()
                     wallet = trader.getPortfolioUSDBalance()
                     bot = CryptoBot(selectedCryptos, trader)
                     bot.start()
@@ -108,6 +107,7 @@ def selection(): ##handle changes to money and checklist
     global i, listbox, money, selected, INPUT
     listbox.delete(0, END)
     temp = 0
+    selectedCryptos.clear()
     for k in range(len(i)):
         if i[k].get() == 1:
             if cryptos[k] in selectedCryptos:
@@ -116,7 +116,7 @@ def selection(): ##handle changes to money and checklist
             selected[k] = True
             listbox.insert(END, selectedCryptos[-1])
     if (money.get() != ''):
-        temp = int(money.get())
+        temp = float(money.get())
         INPUT = temp
     
 def ownedCryptos():
