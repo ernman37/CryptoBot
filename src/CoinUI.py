@@ -4,6 +4,7 @@ from CoinApi import CoinApi
 from Trader import Trader
 from CryptoBot import CryptoBot
 import os.path
+import os
 from log import setLogger
 
 setLogger()
@@ -38,19 +39,20 @@ moneyInput = 0
 INPUT = 0
 checkStop = IntVar()
 running = False
+bot = 0
 
 for k in range(len(selected)):
     i.append(IntVar())
 
 def closing():
+    global bot
     try: 
         exportData()
         bot.stop(True)
         window.destroy()
     except Exception as E:
-        pass
-    exit(1)
-    ##Kill threads and sell
+        print(E)
+    os._exit(0)
 
 def exportData():
     plotFile = open("Graph.txt", "w")
@@ -73,9 +75,8 @@ def begin():
             pos = selected.index(True)
         except:
             pos = -1
-        print(type(INPUT))
         if INPUT >= 12.50 and pos != -1: ##at least one crypto and at least $12.50 has to be entered to run
-            if not os.path.exists("config.py"):
+            if not os.path.exists("src/config.py"):
                 exit(1)
             else:
                 from config import account
@@ -93,13 +94,12 @@ def begin():
                     while running:
                         while time.time() - timeSinceLast < 30:
                             try:
-                                window.update()
-                            except Exception as E:
-                                closing()
+                                window.after(1, window.update())
+                            except:
+                                pass
                         timeSinceLast = time.time()
                         wallet = trader.getPortfolioUSDBalance()
                         newVal = (trader.getPortfolioUSDBalance() - wallet) + value[len(value)-1]
-                        print(newVal)
                         value.append(newVal)
                         t.append(t[len(t)-1] + 30)
 
