@@ -6,8 +6,10 @@ from CryptoBot import CryptoBot
 import os.path
 import os
 from log import setLogger
+import logging
 
 setLogger()
+log = logging.getLogger()
 window = Tk()
 window.geometry("700x400")
 vscrollbar = Scrollbar(window)
@@ -20,8 +22,8 @@ f = Frame(c)
 c.pack(side="left", fill="both")
 c.create_window(0, 0, window=f, anchor="nw")
 
-
 cryptos = CoinApi.getAllUSDTradeables()
+cryptos.sort()
 selectedCryptos = []
 selected = [False] * len(cryptos)
 CryptoCopy = []
@@ -75,7 +77,8 @@ def begin():
         except:
             pos = -1
         if INPUT >= 12.50 and pos != -1: ##at least one crypto and at least $12.50 has to be entered to run
-            if not os.path.exists("src/config.py"):
+            if not os.path.exists("config.py"):
+                log.error('Cannot Find Config File')
                 exit(1)
             else:
                 from config import account
@@ -83,7 +86,6 @@ def begin():
                 if trader == 1 or trader == -1:
                     exit(1)
                 else:
-                    selection()
                     wallet = trader.getPortfolioUSDBalance()
                     bot = CryptoBot(selectedCryptos, trader)
                     bot.start()
