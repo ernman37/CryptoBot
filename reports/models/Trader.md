@@ -124,6 +124,20 @@
   - sets the new `Trader.lastUpdated` time
   - returns the new balances object
 
+- getPortfolioUSDBalance()
+  - Returns the current USD balance of portfolio
+
+#### Exiting Methods
+
+- setTrading(isTrading: bool)
+  - For soft exiting
+  - tells the trader if it is allowed to buy anymore coins
+  - Will run until there is no coins left to trade with a balance of over $10
+
+- hardExit()
+  - This will force all trades to sell out and exit the trader program
+  - For ending the bot
+
 #### Trader.tradeQueue objects
 
 - The Queue will have either a Buy or a Sell order, their objects need to be created specifically so that the Trader can correctly parse information and create successful order

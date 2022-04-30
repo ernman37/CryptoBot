@@ -46,4 +46,5 @@
   - returns current price of the coin for ticker in USD
 
 - getMarket()
+  - returns the `ccxt.binanceus` object used
   
