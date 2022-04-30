@@ -136,6 +136,9 @@ class Trader:
         if self.getFreeUSDBalance() < 10.00:
             self.log.error("Cannot Create Buy for \'" + coin + "\' there is no money available!")
             return False
+        if self.getBuys[coin] != 0:
+            self.log.error("Will not double enter position for coin: " + coin)
+            return False
         cashAmount = self.determineBuyWeight(weight)
         coinAmount = self.determineCoinAmount(coin, cashAmount)
         if not coinAmount:
