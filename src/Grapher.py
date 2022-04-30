@@ -6,8 +6,6 @@ value = [0]
 
 def graph():
     global t, value
-    print(value)
-    print(t)
     dpg.add_window(label="Graph", width=870, height=600, no_title_bar=True, no_resize=True, tag="window")
     dpg.add_plot(label="Overall performance", width=870, height=500, tag="plot", parent="window")
     dpg.add_plot_axis(dpg.mvXAxis, label = "time (seconds)", tag="x_axis", parent="plot")
@@ -16,7 +14,7 @@ def graph():
 
 def readData():
     global t, value
-    file1 = open("Graph.txt", "r")
+    file1 = open("src/Graph.txt", "r")
     file1.readline()
     t.pop()
     value.pop()
