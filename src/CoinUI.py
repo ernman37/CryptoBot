@@ -4,6 +4,7 @@ from CoinApi import CoinApi
 from Trader import Trader
 from CryptoBot import CryptoBot
 import os.path
+import os
 from log import setLogger
 
 setLogger()
@@ -35,22 +36,26 @@ money = 0
 total = 0
 wallet = 0
 moneyInput = 0
-INPUT = 0
+INPUT = 0.0
 checkStop = IntVar()
 running = False
+bot = 0
 
 for k in range(len(selected)):
     i.append(IntVar())
 
 def closing():
-    exportData()
-    bot.stop()
-    window.destroy()
-    exit(1)
-    ##Kill threads and sell
+    global bot
+    try: 
+        exportData()
+        bot.stop(True)
+        window.destroy()
+    except Exception as E:
+        pass
+    os._exit(0)
 
 def exportData():
-    plotFile = open("Graph.txt", "w")
+    plotFile = open("src\Graph.txt", "w")
     plotFile.write("X data:\n")
     for i in range(len(t)):
         plotFile.write(str(t[i])+", ")
@@ -64,14 +69,13 @@ def exportData():
 def begin():
     global selected, wallet, trader, moneyInput, INPUT, bot, stop, running
     timeSinceLast = time.time()
-    selection()
     if INPUT != '' and not running:
         try: ##if there are no cryptos selected, do not run
             pos = selected.index(True)
         except:
             pos = -1
         if INPUT >= 12.50 and pos != -1: ##at least one crypto and at least $12.50 has to be entered to run
-            if not os.path.exists("config.py"):
+            if not os.path.exists("src/config.py"):
                 exit(1)
             else:
                 from config import account
@@ -79,18 +83,23 @@ def begin():
                 if trader == 1 or trader == -1:
                     exit(1)
                 else:
+                    selection()
                     wallet = trader.getPortfolioUSDBalance()
                     bot = CryptoBot(selectedCryptos, trader)
                     bot.start()
                     running = True
                     value.pop()
                     value.append(INPUT)
-                    while True:
+                    while running:
                         while time.time() - timeSinceLast < 30:
-                            window.mainloop()
+                            try:
+                                window.after(1, window.update())
+                            except:
+                                pass
                         timeSinceLast = time.time()
                         wallet = trader.getPortfolioUSDBalance()
-                        value.append((trader.getPortfolioUSDBalance() - wallet) + value[len(value)-1])
+                        newVal = (trader.getPortfolioUSDBalance() - wallet) + value[len(value)-1]
+                        value.append(newVal)
                         t.append(t[len(t)-1] + 30)
 
                         
@@ -98,6 +107,7 @@ def selection(): ##handle changes to money and checklist
     global i, listbox, money, selected, INPUT
     listbox.delete(0, END)
     temp = 0
+    selectedCryptos.clear()
     for k in range(len(i)):
         if i[k].get() == 1:
             if cryptos[k] in selectedCryptos:
@@ -106,7 +116,7 @@ def selection(): ##handle changes to money and checklist
             selected[k] = True
             listbox.insert(END, selectedCryptos[-1])
     if (money.get() != ''):
-        temp = int(money.get())
+        temp = float(money.get())
         INPUT = temp
     
 def ownedCryptos():
