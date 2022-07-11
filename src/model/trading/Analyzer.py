@@ -7,10 +7,11 @@
 '''
 import pandas as pd
 import queue, logging, sys
+sys.path.append('..')
 from time import sleep
-from Trader import Trader
-from CoinData import CoinData
-from CoinQueue import Queue
+from ..trading.Trader import Trader
+from ..coin.CoinData import CoinData
+from ..coin.CoinQueue import Queue
 
 class Analyzer:
     def __init__(self, coinsData, scanQueue, tradeQueue):

@@ -9,7 +9,7 @@
 '''
 import pandas as pd
 import pandas_ta as ta
-from CoinApi import CoinApi
+from ..api.CoinApi import CoinApi
 from threading import Lock
 import logging
 import copy

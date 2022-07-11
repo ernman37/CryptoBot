@@ -5,9 +5,9 @@
     For: Crypto Bot
     Description: Scans a list of coins data for analysis
 '''
-from CoinData import CoinData
+from ..coin.CoinData import CoinData
 import time, logging, sys
-from CoinQueue import Queue
+from ..coin.CoinQueue import Queue
 
 class CoinsScanner:
     def __init__(self, coins, queue, timeFrame='1m'):

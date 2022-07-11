@@ -7,13 +7,13 @@
 '''
 import pandas as pd
 import time
-from CoinData import CoinData
-from CoinApi import CoinApi
-from CoinsScanner import CoinsScanner
-from Trader import Trader
-from CryptoBot import CryptoBot
-from log import setLogger
-from FingerPrint import FingerPrint
+from model.coin.CoinData import CoinData
+from model.api.CoinApi import CoinApi
+from model.api.CoinsScanner import CoinsScanner
+from model.trading.Trader import Trader
+from model.CryptoBot import CryptoBot
+from helpers.log import setLogger
+from helpers.FingerPrint import FingerPrint
 import os.path, os, sys
 import time
 
@@ -22,11 +22,11 @@ log = setLogger()
 def main():
     account = findConfig()
     tryFingerScanner()
-    os.system("python3 CoinUI.py")
-    #trader = Trader(account['apiKey'], account['secret'])
-    #coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
-    #cryptoBot = CryptoBot(coins, trader)
-    #cryptoBot.start()
+    #os.system("python3 view/CoinUI.py")
+    trader = Trader(account['apiKey'], account['secret'])
+    coins = ['BTCUSD', 'SOLUSD', 'MATICUSD', 'MANAUSD', 'ADAUSD', 'LTCUSD', 'XLMUSD']
+    cryptoBot = CryptoBot(coins, trader)
+    cryptoBot.start()
     while True:
         time.sleep(1)
 
@@ -40,17 +40,17 @@ def tryFingerScanner():
             ans = input("1: Run without authorization\n2: exit\nEnter Option: ")
         if ans == '2':
             exit(1)
+        log.exception(E)
         log.error("Trying to Run without authorization")
 
 def findConfig():
-    if os.path.exists('config.py'):
-        from config import account
+    if os.path.exists('./private/config.py'):
+        from private.config import account
         log.error("Found config File")
         return account
     else:
         log.error("Cannot Find Config file cannot begin without it")
         exit(1)
-
  
 if __name__ == "__main__":
     main()

@@ -5,10 +5,10 @@
     For: Crypto Bot
     Description: A crypto trading bot for either paper trading or actual market trading
 '''
-from CoinsScanner import CoinsScanner
-from Analyzer import Analyzer
-from Trader import Trader
-from CoinQueue import Queue
+from .api.CoinsScanner import CoinsScanner
+from .trading.Analyzer import Analyzer
+from .trading.Trader import Trader
+from .coin.CoinQueue import Queue
 import threading, logging, sys, time
 
 class CryptoBot: 

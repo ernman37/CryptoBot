@@ -5,7 +5,7 @@
     For: Crypto Bot
     Description: Will access the Market for buying and selling of crypto/paper trading
 '''
-from CoinApi import CoinApi
+from ..api.CoinApi import CoinApi
 import queue, logging, ccxt, time, sys
 from threading import Lock
 
