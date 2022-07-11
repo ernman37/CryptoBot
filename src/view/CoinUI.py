@@ -1,11 +1,11 @@
 from tkinter import *
 import time
-from CoinApi import CoinApi
-from Trader import Trader
-from CryptoBot import CryptoBot
+from ..model.api.CoinApi import CoinApi
+from ..model.trading.Trader import Trader
+from ..model.CryptoBot import CryptoBot
 import os.path
 import os
-from log import setLogger
+from ..helpers.log import setLogger
 import logging
 
 setLogger()
